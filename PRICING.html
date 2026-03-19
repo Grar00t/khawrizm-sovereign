@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KHAWRIZM Pricing - Sovereign AI Ecosystem</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #020202 0%, #1a1a2e 100%);
+            color: #e8e8e8;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #00d4ff, #9d4edd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            color: #a0a0a0;
+            margin-bottom: 30px;
+        }
+        
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        
+        .pricing-card {
+            background: rgba(45, 45, 60, 0.8);
+            border: 2px solid #00d4ff;
+            border-radius: 10px;
+            padding: 30px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.2);
+        }
+        
+        .pricing-card.featured {
+            border-color: #9d4edd;
+            background: rgba(157, 78, 221, 0.1);
+            transform: scale(1.05);
+        }
+        
+        .badge {
+            position: absolute;
+            top: -15px;
+            right: 20px;
+            background: #9d4edd;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        
+        .plan-name {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #00d4ff;
+        }
+        
+        .price {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 15px 0;
+            color: #9d4edd;
+        }
+        
+        .price small {
+            font-size: 0.4em;
+            color: #a0a0a0;
+        }
+        
+        .features {
+            list-style: none;
+            margin: 20px 0;
+        }
+        
+        .features li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            padding-left: 25px;
+        }
+        
+        .features li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #00d4ff;
+            font-weight: bold;
+        }
+        
+        .features li.unavailable {
+            color: #666;
+        }
+        
+        .features li.unavailable:before {
+            content: "✗";
+            color: #666;
+        }
+        
+        .btn {
+            display: inline-block;
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #00d4ff, #9d4edd);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+        }
+        
+        .btn:hover {
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+            transform: scale(1.02);
+        }
+        
+        .faq {
+            background: rgba(45, 45, 60, 0.5);
+            border-radius: 10px;
+            padding: 40px;
+            margin-top: 60px;
+        }
+        
+        .faq h2 {
+            margin-bottom: 30px;
+            color: #00d4ff;
+        }
+        
+        .faq-item {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .faq-item h3 {
+            color: #9d4edd;
+            margin-bottom: 10px;
+        }
+        
+        .contact {
+            text-align: center;
+            margin-top: 60px;
+            padding: 40px;
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 10px;
+        }
+        
+        .contact h2 {
+            color: #00d4ff;
+            margin-bottom: 20px;
+        }
+        
+        .contact p {
+            margin: 10px 0;
+            font-size: 1.1em;
+        }
+        
+        .contact a {
+            color: #00d4ff;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        
+        .contact a:hover {
+            text-decoration: underline;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>KHAWRIZM Pricing</h1>
+            <p class="subtitle">Choose the plan that fits your sovereignty needs</p>
+        </header>
+        
+        <div class="pricing-grid">
+            <!-- Free Tier -->
+            <div class="pricing-card">
+                <h3 class="plan-name">Open Source</h3>
+                <div class="price">Free <small>forever</small></div>
+                <p style="color: #a0a0a0; margin: 10px 0;">Perfect for learning & personal use</p>
+                
+                <ul class="features">
+                    <li>Full source code access</li>
+                    <li>Community support</li>
+                    <li>MIT License</li>
+                    <li>Docker containerization</li>
+                    <li>Local-only deployment</li>
+                    <li class="unavailable">No commercial support</li>
+                    <li class="unavailable">No SLA guarantee</li>
+                </ul>
+                
+                <a href="https://github.com/grar00t/khawrizm" class="btn">Get Started</a>
+            </div>
+            
+            <!-- Professional -->
+            <div class="pricing-card">
+                <h3 class="plan-name">Professional</h3>
+                <div class="price">$99 <small>/month</small></div>
+                <p style="color: #a0a0a0; margin: 10px 0;">For small teams & startups</p>
+                
+                <ul class="features">
+                    <li>Commercial license</li>
+                    <li>Up to 5 installations</li>
+                    <li>Email support (24-48h)</li>
+                    <li>Security updates</li>
+                    <li>Pre-built Docker images</li>
+                    <li>Documentation</li>
+                    <li class="unavailable">No dedicated support</li>
+                </ul>
+                
+                <button class="btn">Subscribe Now</button>
+            </div>
+            
+            <!-- Enterprise (Featured) -->
+            <div class="pricing-card featured">
+                <div class="badge">MOST POPULAR</div>
+                <h3 class="plan-name">Enterprise</h3>
+                <div class="price">$499 <small>/month</small></div>
+                <p style="color: #a0a0a0; margin: 10px 0;">For enterprises & large deployments</p>
+                
+                <ul class="features">
+                    <li>Unlimited installations</li>
+                    <li>Dedicated support engineer</li>
+                    <li>Priority support (4h)</li>
+                    <li>99.9% SLA guarantee</li>
+                    <li>Custom integrations</li>
+                    <li>Security audits (quarterly)</li>
+                    <li>On-premise deployment</li>
+                </ul>
+                
+                <button class="btn">Contact Sales</button>
+            </div>
+        </div>
+        
+        <!-- Consulting Services -->
+        <div style="background: rgba(45, 45, 60, 0.8); border: 2px solid #00d4ff; border-radius: 10px; padding: 30px; margin-bottom: 60px;">
+            <h3 style="color: #00d4ff; margin-bottom: 20px;">Consulting Services</h3>
+            <p style="margin-bottom: 15px;">Custom development, integration, and architecture support</p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                <div>
+                    <h4 style="color: #9d4edd;">Architecture Design</h4>
+                    <p style="color: #a0a0a0;">$150/hour</p>
+                </div>
+                <div>
+                    <h4 style="color: #9d4edd;">Integration Support</h4>
+                    <p style="color: #a0a0a0;">$150/hour</p>
+                </div>
+                <div>
+                    <h4 style="color: #9d4edd;">Custom Development</h4>
+                    <p style="color: #a0a0a0;">$150/hour</p>
+                </div>
+                <div>
+                    <h4 style="color: #9d4edd;">Training & Workshops</h4>
+                    <p style="color: #a0a0a0;">$150/hour (min 4h)</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- FAQ -->
+        <div class="faq">
+            <h2>Frequently Asked Questions</h2>
+            
+            <div class="faq-item">
+                <h3>Can I use the free version commercially?</h3>
+                <p>No, the MIT license is for personal/educational use only. Commercial use requires a Professional or Enterprise license.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h3>What if I need custom features?</h3>
+                <p>We offer consulting services at $150/hour. Contact us to discuss your requirements.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h3>Is there a free trial?</h3>
+                <p>Yes! Use the free MIT version indefinitely. Purchase a commercial license when you're ready.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h3>Can I cancel anytime?</h3>
+                <p>Yes, cancel with 30 days' notice. No long-term contracts required.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h3>Do you offer discounts?</h3>
+                <p>Annual subscriptions get 15% discount. Contact sales for volume discounts.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h3>What payment methods do you accept?</h3>
+                <p>Stripe, PayPal, and Bank Transfer (for Enterprise customers).</p>
+            </div>
+        </div>
+        
+        <!-- Contact -->
+        <div class="contact">
+            <h2>Ready to Get Started?</h2>
+            <p>Have questions? We're here to help!</p>
+            <p>
+                <a href="mailto:contact@khawrizm.com">Email: contact@khawrizm.com</a> |
+                <a href="https://twitter.com/khawrzm">Twitter: @khawrzm</a>
+            </p>
+            <p style="margin-top: 20px; color: #a0a0a0;">
+                <strong>Ghala Rafaa Al-Omari Co.</strong><br>
+                CR: 7050426415 | VAT: 313076120300003
+            </p>
+        </div>
+        
+        <footer>
+            <p>© 2026 KHAWRIZM Sovereign Ecosystem. All rights reserved.</p>
+            <p>Built for sovereignty. Made in Riyadh. 🇸🇦</p>
+        </footer>
+    </div>
+</body>
+</html>

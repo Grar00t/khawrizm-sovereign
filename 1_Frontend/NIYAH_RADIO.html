@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NIYAH RADIO — KHAWRIZM SOVEREIGN BROADCAST</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@300;400;700&display=swap');
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#050505;--coal:#0e0e0e;--iron:#1a1a1a;--wire:#2a2a2a;
+  --bone:#e2d6c4;--pale:#9a8e7e;--fade:#48403a;
+  --amber:#e8a020;--red:#cc1111;--hot:#ff2020;
+  --green:#00cc66;--cyan:#00d4ff;--violet:#8844ff;
+}
+html,body{height:100%;background:var(--bg)}
+body{color:var(--bone);font-family:'IBM Plex Mono',monospace;min-height:100vh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:200;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.05) 2px,rgba(0,0,0,.05) 3px)}
+
+/* ── STATION HEADER ── */
+header{width:100%;max-width:900px;padding:28px 30px 0;z-index:10;position:relative}
+.station-id{
+  display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;
+}
+.call-sign{
+  font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,9vw,96px);
+  line-height:.88;letter-spacing:.04em;color:var(--amber);
+  text-shadow:0 0 40px rgba(232,160,32,.3),0 0 80px rgba(232,160,32,.1);
+}
+.freq-block{
+  text-align:right;display:flex;flex-direction:column;gap:3px;padding-bottom:6px;
+}
+.freq-num{font-size:28px;letter-spacing:.05em;color:var(--amber);font-weight:700}
+.freq-band{font-size:9px;letter-spacing:.4em;color:var(--fade)}
+.on-air{
+  display:flex;align-items:center;gap:7px;
+  font-size:9px;letter-spacing:.35em;text-transform:uppercase;
+  color:var(--green);
+}
+.on-air-dot{width:7px;height:7px;background:var(--green);border-radius:50%;
+  box-shadow:0 0 8px var(--green);animation:blink .9s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.hl{width:100%;height:1px;background:linear-gradient(90deg,var(--amber),rgba(232,160,32,.2) 60%,transparent);margin-top:14px}
+
+/* ── SIGNAL METER + FREQ DIAL ── */
+.meters{width:100%;max-width:900px;padding:12px 30px 0;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;z-index:10;position:relative}
+.meter-box{background:var(--coal);border:1px solid var(--wire);padding:10px 14px}
+.meter-lbl{font-size:7.5px;letter-spacing:.3em;color:var(--fade);margin-bottom:6px;text-transform:uppercase}
+.meter-bar{width:100%;height:6px;background:var(--iron);position:relative;overflow:hidden}
+.meter-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--amber) 70%,var(--red));
+  transition:width .12s ease;border-right:1px solid #fff}
+.meter-val{font-size:10px;color:var(--amber);margin-top:4px;letter-spacing:.08em}
+
+/* ── DIAL ── */
+.dial-wrap{width:100%;max-width:900px;padding:12px 30px 0;z-index:10;position:relative}
+.dial-track{
+  width:100%;height:36px;background:var(--coal);border:1px solid var(--wire);
+  position:relative;overflow:hidden;cursor:pointer;
+}
+.dial-scale{
+  position:absolute;top:0;left:0;right:0;bottom:0;
+  background:repeating-linear-gradient(90deg,transparent,transparent 19px,rgba(232,160,32,.12) 19px,rgba(232,160,32,.12) 20px);
+}
+.dial-labels{position:absolute;top:50%;left:0;right:0;transform:translateY(-50%);
+  display:flex;justify-content:space-between;padding:0 4px;pointer-events:none}
+.dial-labels span{font-size:7.5px;color:var(--fade);letter-spacing:.05em}
+.dial-needle{
+  position:absolute;top:0;bottom:0;width:2px;background:var(--amber);
+  box-shadow:0 0 8px var(--amber),0 0 20px rgba(232,160,32,.4);
+  left:68%;transition:left 2s ease;pointer-events:none;
+}
+
+/* ── WAVEFORM ── */
+.wave-wrap{width:100%;max-width:900px;padding:10px 30px 0;z-index:10;position:relative}
+#cvWave{width:100%;height:64px;display:block;border:1px solid var(--wire)}
+
+/* ── NOW PLAYING ── */
+.now-playing{
+  width:100%;max-width:900px;padding:12px 30px 0;z-index:10;position:relative;
+}
+.np-box{
+  background:var(--coal);border:1px solid rgba(232,160,32,.25);
+  padding:14px 18px;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;
+}
+.np-icon{font-size:22px;animation:spin 3s linear infinite}
+@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+.np-icon.paused{animation:none}
+.np-meta{overflow:hidden}
+.np-episode{font-size:9px;letter-spacing:.25em;color:var(--amber);margin-bottom:3px}
+.np-title{font-size:13px;font-weight:700;letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.np-desc{font-size:9px;color:var(--pale);margin-top:3px;letter-spacing:.05em}
+.np-timer{text-align:right}
+.np-elapsed{font-size:18px;font-weight:700;color:var(--amber);letter-spacing:.08em}
+.np-total{font-size:9px;color:var(--fade)}
+
+/* ── CONTROLS ── */
+.ctrl{
+  width:100%;max-width:900px;padding:12px 30px;
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;z-index:10;position:relative;
+}
+.btn{
+  font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:.25em;
+  color:var(--bone);background:none;border:1px solid var(--wire);
+  padding:9px 20px;cursor:pointer;position:relative;overflow:hidden;
+  transition:border-color .15s;flex-shrink:0;
+}
+.btn::before{content:'';position:absolute;inset:0;background:var(--amber);
+  transform:scaleX(0);transform-origin:left;transition:transform .15s}
+.btn:hover::before{transform:scaleX(1)}
+.btn span{position:relative;z-index:1}
+.btn.primary{border-color:var(--amber);color:var(--amber)}
+.btn.primary.on::before{transform:scaleX(.04)}
+.btn.primary.on{border-color:var(--hot)}
+.sg{display:flex;align-items:center;gap:6px}
+.sg label{font-size:8px;color:var(--fade);letter-spacing:.15em;text-transform:uppercase;white-space:nowrap}
+input[type=range]{-webkit-appearance:none;height:2px;background:var(--iron);outline:none;cursor:pointer;width:60px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:9px;height:9px;background:var(--amber);border-radius:50%}
+.rv{font-size:8px;color:var(--pale);min-width:24px;text-align:right}
+#st{font-size:8px;letter-spacing:.14em;color:var(--fade);margin-left:auto;white-space:nowrap}
+#st.live{color:var(--green)} #st.gen{color:var(--cyan)} #st.err{color:var(--hot)}
+
+/* ── TRANSCRIPT / SCRIPT PANEL ── */
+.script-panel{
+  width:100%;max-width:900px;padding:0 30px;z-index:10;position:relative;
+}
+.sp-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.sp-title{font-size:9px;letter-spacing:.3em;color:var(--amber);text-transform:uppercase}
+.sp-sep{flex:1;height:1px;background:var(--wire)}
+.sp-mode{font-size:8px;letter-spacing:.2em;color:var(--fade)}
+.script-box{
+  background:var(--coal);border:1px solid var(--wire);
+  padding:16px 18px;min-height:160px;max-height:260px;overflow-y:auto;
+  scroll-behavior:smooth;
+}
+.script-box::-webkit-scrollbar{width:4px}
+.script-box::-webkit-scrollbar-track{background:var(--iron)}
+.script-box::-webkit-scrollbar-thumb{background:var(--wire)}
+.line{
+  display:block;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);
+  font-size:13px;line-height:1.7;letter-spacing:.03em;
+  opacity:.28;transition:opacity .4s,color .3s;
+}
+.line.host-a{color:var(--amber)}
+.line.host-b{color:var(--cyan)}
+.line.active{opacity:1;font-weight:700;font-size:14px}
+.line.spoken{opacity:.35}
+.line .spk{font-size:8px;letter-spacing:.2em;margin-right:8px;font-weight:300;opacity:.7}
+.line.generating{color:var(--pale);font-style:italic;opacity:.6;animation:gen-pulse 1s infinite}
+@keyframes gen-pulse{0%,100%{opacity:.4}50%{opacity:.7}}
+
+/* ── TOPIC QUEUE ── */
+.queue-wrap{
+  width:100%;max-width:900px;padding:10px 30px 0;z-index:10;position:relative;
+}
+.q-header{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.q-title{font-size:8.5px;letter-spacing:.3em;color:var(--fade);text-transform:uppercase}
+.topic-list{display:flex;gap:8px;flex-wrap:wrap}
+.topic-chip{
+  font-size:8.5px;letter-spacing:.12em;color:var(--fade);
+  border:1px solid var(--wire);padding:4px 10px;cursor:pointer;
+  transition:all .15s;text-transform:uppercase;
+}
+.topic-chip:hover{border-color:var(--amber);color:var(--amber)}
+.topic-chip.active{border-color:var(--amber);color:var(--amber);background:rgba(232,160,32,.06)}
+
+/* ── TICKER ── */
+.ticker{
+  width:100%;background:var(--amber);overflow:hidden;padding:5px 0;
+  position:relative;z-index:10;margin-top:14px;
+}
+.ticker-inner{
+  display:flex;white-space:nowrap;
+  animation:ticker 40s linear infinite;
+}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.ticker-item{
+  font-size:9px;font-weight:700;letter-spacing:.2em;color:var(--bg);
+  padding:0 28px;text-transform:uppercase;
+}
+.ticker-sep{color:rgba(0,0,0,.4);padding:0 4px}
+
+/* ── FOOTER ── */
+footer{
+  width:100%;max-width:900px;padding:12px 30px 28px;
+  display:flex;justify-content:space-between;align-items:center;
+  border-top:1px solid var(--wire);z-index:10;position:relative;margin-top:14px;
+}
+.fs{font-size:8px;color:var(--fade);letter-spacing:.16em}
+.fs .a{color:var(--amber)}
+
+/* ── VOICE SELECT (hidden but functional) ── */
+.vbar{
+  width:100%;max-width:900px;padding:0 30px 10px;
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  border-bottom:1px solid var(--wire);z-index:10;position:relative;
+}
+.vbar label{font-size:8px;letter-spacing:.15em;color:var(--fade);text-transform:uppercase;white-space:nowrap}
+select{background:var(--coal);color:var(--bone);border:1px solid var(--wire);
+  font-family:'IBM Plex Mono',monospace;font-size:9px;padding:4px 7px;cursor:pointer;
+  min-width:120px;max-width:200px;outline:none}
+select:focus{border-color:var(--amber)}
+.fx-badge{font-size:8px;letter-spacing:.15em;padding:4px 10px;border:1px solid var(--green);color:var(--green);text-transform:uppercase}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="station-id">
+    <div>
+      <div class="call-sign">NIYAH<br>RADIO</div>
+      <div class="on-air" style="margin-top:6px">
+        <span class="on-air-dot"></span>
+        LIVE BROADCAST · KHAWRIZM SOVEREIGN NETWORK
+      </div>
+    </div>
+    <div class="freq-block">
+      <div class="freq-num" id="freqNum">91.4</div>
+      <div class="freq-band">FM · SOVEREIGN BAND</div>
+      <div style="font-size:8px;color:var(--fade);margin-top:4px;letter-spacing:.15em">RIYADH · HAVEN OS · 24/7</div>
+    </div>
+  </div>
+  <div class="hl"></div>
+</header>
+
+<!-- SIGNAL METERS -->
+<div class="meters">
+  <div class="meter-box">
+    <div class="meter-lbl">Signal Strength</div>
+    <div class="meter-bar"><div class="meter-fill" id="mSignal" style="width:84%"></div></div>
+    <div class="meter-val" id="mSignalV">84%</div>
+  </div>
+  <div class="meter-box">
+    <div class="meter-lbl">Voice Level</div>
+    <div class="meter-bar"><div class="meter-fill" id="mVoice" style="width:0%"></div></div>
+    <div class="meter-val" id="mVoiceV">0 dB</div>
+  </div>
+  <div class="meter-box">
+    <div class="meter-lbl">AI Engine</div>
+    <div class="meter-bar"><div class="meter-fill" id="mAI" style="width:0%;background:var(--cyan)"></div></div>
+    <div class="meter-val" id="mAIV" style="color:var(--cyan)">IDLE</div>
+  </div>
+</div>
+
+<!-- FREQUENCY DIAL -->
+<div class="dial-wrap">
+  <div class="dial-track" id="dialTrack">
+    <div class="dial-scale"></div>
+    <div class="dial-labels">
+      <span>87.5</span><span>90.0</span><span>92.5</span><span>95.0</span>
+      <span>97.5</span><span>100</span><span>102</span><span>104</span>
+    </div>
+    <div class="dial-needle" id="dialNeedle"></div>
+  </div>
+</div>
+
+<!-- WAVEFORM -->
+<div class="wave-wrap"><canvas id="cvWave"></canvas></div>
+
+<!-- NOW PLAYING -->
+<div class="now-playing">
+  <div class="np-box">
+    <div class="np-icon paused" id="npIcon">📻</div>
+    <div class="np-meta">
+      <div class="np-episode" id="npEp">EPISODE 001</div>
+      <div class="np-title" id="npTitle">Awaiting transmission…</div>
+      <div class="np-desc" id="npDesc">Press BROADCAST to begin live generation</div>
+    </div>
+    <div class="np-timer">
+      <div class="np-elapsed" id="npElapsed">0:00</div>
+      <div class="np-total" id="npTotal">—</div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTROLS -->
+<div class="ctrl">
+  <button class="btn primary" id="playBtn"><span id="bt">▶ BROADCAST</span></button>
+  <button class="btn" id="nextBtn"><span>⏭ NEXT TOPIC</span></button>
+  <div class="sg"><label>VOL</label><input type="range" id="vol" min="0" max="1" step="0.05" value="0.9"><span class="rv" id="volV">0.9</span></div>
+  <div class="sg"><label>FX</label><input type="range" id="fx" min="0" max="1" step="0.05" value="0.6"><span class="rv" id="fxV">0.6</span></div>
+  <div id="st">READY</div>
+</div>
+
+<!-- VOICE SETTINGS -->
+<div class="vbar">
+  <label>HOST A</label>
+  <select id="vasel"></select>
+  <label>HOST B</label>
+  <select id="vbsel"></select>
+  <div class="fx-badge">📡 RADIO FX ON</div>
+  <div style="font-size:8px;letter-spacing:.1em;color:var(--fade);margin-left:auto">AM CHAIN: 300-3400Hz + TUBE WARMTH + STATIC</div>
+</div>
+
+<!-- TOPIC QUEUE -->
+<div class="queue-wrap">
+  <div class="q-header">
+    <div class="q-title">LIVE TOPIC QUEUE</div>
+    <div class="ticker-sep" style="flex:1;height:1px;background:var(--wire)"></div>
+    <div style="font-size:8px;color:var(--fade)">CLICK TO JUMP</div>
+  </div>
+  <div class="topic-list" id="topicList"></div>
+</div>
+
+<!-- TRANSCRIPT -->
+<div class="script-panel" style="margin-top:12px">
+  <div class="sp-header">
+    <div class="sp-title">LIVE TRANSCRIPT</div>
+    <div class="sp-sep"></div>
+    <div class="sp-mode" id="spMode">TWO-HOST FORMAT · AI-GENERATED</div>
+  </div>
+  <div class="script-box" id="scriptBox">
+    <span class="line generating">
+      <span class="spk">NIYAH</span>Initializing sovereign broadcast engine…
+    </span>
+  </div>
+</div>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner" id="tickerInner"></div>
+</div>
+
+<footer>
+  <div class="fs"><span class="a">📻</span> NIYAH RADIO · KHAWRIZM SOVEREIGN NETWORK · RIYADH</div>
+  <div class="fs">SULAIMAN · <span class="a">shammar403@gmail.com</span> · 24/7 LIVE</div>
+</footer>
+
+<script>
+'use strict';
+// ═══════════════════════════════════════════════════════════════
+//  NIYAH RADIO — SOVEREIGN AI BROADCAST ENGINE
+//  ─ Claude generates infinite two-host podcast episodes
+//  ─ AM Radio FX chain (bandpass 300-3400Hz + tube + static)
+//  ─ Two Web Speech voices, each routed through FX
+//  ─ Topics: HAVEN, KHAWRIZM, sovereignty, tech, philosophy
+// ═══════════════════════════════════════════════════════════════
+
+// ── TOPICS (auto-rotates, Claude generates fresh each time) ──
+const TOPICS = [
+  { id:'haven',    label:'HAVEN OS',        color:'#ff5500',
+    prompt:'HAVEN OS sovereign operating system: air-gapped architecture, ARM64 Snapdragon X Elite, Phalanx Protocol kernel telemetry blocker, WSL2 bridge design.' },
+  { id:'kforge',   label:'K-FORGE',         color:'#00cc66',
+    prompt:'K-Forge: P2P cryptographically undeletable version control. Why GitHub deleted GRATECHX and KHAWRIZM accounts. Reclaiming digital sovereignty. Al-Khwarizmi heritage.' },
+  { id:'niyah',    label:'NIYAH ENGINE',    color:'#00d4ff',
+    prompt:'NIYAH AI engine: Three-Lobe Architecture (Executive/Sensory/Cognitive), Arabic-first on-device AI, running on Snapdragon NPU, Rust FFI bridge, no cloud dependency.' },
+  { id:'dragon',   label:'DRAGON403',       color:'#cc1111',
+    prompt:'DRAGON403 investigation: Chinese fraud network targeting Gulf Arab users. HILO token on Ethereum, com.juhaoliao.vochat APK, C2 at 36.97.126.139 China Telecom. 730+ days Google Play ignored the case.' },
+  { id:'gratech',  label:'GRATECH',         color:'#8844ff',
+    prompt:'GraTech.sa: sovereign multi-model AI platform on Azure UAE North. GPT-4o, DeepSeek-V3.1, o4-mini, Llama-405B. PDPL compliance shield for Saudi enterprises. IBM Partner Plus + Microsoft Partner.' },
+  { id:'phil',     label:'PHILOSOPHY',      color:'#ffa500',
+    prompt:'Nietzsche will to power, Amor Fati, Übermensch applied to sovereign tech. Al-Khwarizmi legacy: the original algorithm architect. Saudi founder building infrastructure that cannot be deleted.' },
+  { id:'comet',    label:'COMET-X',         color:'#00ffcc',
+    prompt:'Comet-X: local-first P2P browser extension using Yjs CRDT sync. Multi-agent AI orchestration methodology for solo founders. Five AI models in specialized roles, one human making final decisions.' },
+  { id:'os',       label:'KHAWRIZMOS',      color:'#ff44ff',
+    prompt:'KhawrizmOS: sovereign ARM64 Linux distribution. Phalanx Protocol kernel-level telemetry blocker. Independence from Windows/Google/Microsoft ecosystem. Building from D-drive sovereign lab.' },
+  { id:'pdpl',     label:'PDPL & PRIVACY',  color:'#44aaff',
+    prompt:'Saudi PDPL compliance: regulatory fine exposure vs subscription cost. Saudi Vision 2030 tech sovereignty. Why enterprises need local AI infrastructure. Ghala Rafaa Al-Omari Co CR: 7050426415.' },
+  { id:'rl',       label:'RUST & KERNEL',   color:'#ff8800',
+    prompt:'Rust systems programming for sovereign stack: unsafe Rust, FFI with Python/C via PyO3/cbindgen, ptrace bridge, no_std environments, ARM64 assembly. niyah-core Cargo.toml warnings fixed.' },
+];
+
+let topicIdx = 0;
+let episodeCount = 0;
+let isPlaying = false, stopFlag = false;
+let AC, analyser, staticSource, staticGain;
+let voiceAnim, signalAnim, dialAnim;
+let currentScript = [];
+let lineIdx = 0;
+let voiceA = null, voiceB = null;
+let epStartTime = 0;
+
+// ── BUILD TOPIC CHIPS ──
+const topicList = document.getElementById('topicList');
+TOPICS.forEach((t, i) => {
+  const c = document.createElement('div');
+  c.className = 'topic-chip' + (i===0?' active':'');
+  c.id = 'chip-'+t.id;
+  c.textContent = t.label;
+  c.style.borderColor = i===0?t.color:'';
+  c.style.color = i===0?t.color:'';
+  c.addEventListener('click', () => { topicIdx = i; if(isPlaying) skipToNext(); });
+  topicList.appendChild(c);
+});
+
+function setActiveChip(idx) {
+  document.querySelectorAll('.topic-chip').forEach((c,i) => {
+    c.classList.toggle('active', i===idx);
+    c.style.borderColor = i===idx ? TOPICS[idx].color : '';
+    c.style.color = i===idx ? TOPICS[idx].color : '';
+  });
+}
+
+// ── BUILD TICKER ──
+function buildTicker() {
+  const items = [
+    '💀 NIYAH ENGINE v2 LIVE ON AIR',
+    '⚡ HAVEN OS — SOVEREIGN ARCHITECTURE',
+    '🛡️ KHAWRIZM — THE SOVEREIGN STACK',
+    '📡 DRAGON403 INVESTIGATION: 730+ DAYS IGNORED BY GOOGLE PLAY',
+    '🔴 GRATECH.SA — PDPL COMPLIANT AI PLATFORM',
+    '⚙️ K-FORGE: CRYPTOGRAPHICALLY UNDELETABLE INFRASTRUCTURE',
+    '🧠 THREE-LOBE AI: EXECUTIVE · SENSORY · COGNITIVE',
+    '💎 IBM PARTNER PLUS · MICROSOFT PARTNER · RIYADH',
+    '🌐 KHAWRIZMOS: SOVEREIGN ARM64 LINUX DISTRIBUTION',
+    '🔥 BUILT BY SULAIMAN — ARCHITECT OF HAVEN',
+  ];
+  const inner = document.getElementById('tickerInner');
+  const doubled = [...items, ...items]; // seamless loop
+  inner.innerHTML = doubled.map(t => `<span class="ticker-item">${t}</span><span class="ticker-sep">◆</span>`).join('');
+}
+buildTicker();
+
+// ══════════════════════════════════════════════════════════════
+//  AI SCRIPT GENERATOR — Anthropic API
+// ══════════════════════════════════════════════════════════════
+async function generateEpisode(topic) {
+  setStatus('GENERATING…', 'gen');
+  setAIMeter(20);
+
+  const systemPrompt = `You are generating a LIVE RADIO BROADCAST script for NIYAH RADIO, a sovereign tech station.
+
+FORMAT: Two-host conversation. Host A = "NIYAH" (analytical, direct, deep). Host B = "SOVEREIGN" (curious, provocative, challenges ideas).
+
+RULES:
+- Generate exactly 12-16 short exchanges (lines). Each line max 2 sentences.
+- Make it feel like a REAL radio conversation: interruptions, agreements, surprises, rhetorical questions.
+- Include real technical facts, be specific and knowledgeable.
+- Host A starts each episode. Alternate A/B/A/B...
+- Format EXACTLY as JSON array, no markdown, no explanation:
+[{"host":"A","text":"..."},{"host":"B","text":"..."},...]
+
+Do NOT include a title line or intro music cue. Start directly with conversation.`;
+
+  const userPrompt = `Generate a radio conversation episode about: ${topic.prompt}
+Topic label: ${topic.label}
+Episode number: ${episodeCount + 1}
+Time: ${new Date().toLocaleTimeString()}
+
+Make it genuinely insightful, not generic. Include specific technical details.`;
+
+  try {
+    setAIMeter(50);
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userPrompt }],
+      })
+    });
+
+    setAIMeter(85);
+    const data = await response.json();
+    const raw = data.content?.[0]?.text || '[]';
+
+    // Parse JSON - strip any wrapping
+    let parsed;
+    try {
+      const clean = raw.replace(/```json\n?/g,'').replace(/```\n?/g,'').trim();
+      parsed = JSON.parse(clean);
+    } catch(e) {
+      // Fallback parse: extract lines manually
+      parsed = fallbackParse(raw);
+    }
+
+    setAIMeter(100);
+    setTimeout(() => setAIMeter(0), 800);
+    episodeCount++;
+    return parsed;
+
+  } catch(e) {
+    console.error('Generation error:', e);
+    setAIMeter(0);
+    return fallbackScript(topic);
+  }
+}
+
+function fallbackParse(raw) {
+  const lines = [];
+  const regex = /"host"\s*:\s*"([AB])"\s*,\s*"text"\s*:\s*"([^"]+)"/g;
+  let m;
+  while((m = regex.exec(raw)) !== null) {
+    lines.push({ host: m[1], text: m[2] });
+  }
+  return lines.length > 0 ? lines : fallbackScript({ label: 'Connection' });
+}
+
+function fallbackScript(topic) {
+  return [
+    { host:'A', text:`We are on the air broadcasting from the sovereign network. Tonight we discuss ${topic.label}.` },
+    { host:'B', text:`The signal is clear. Let's get into it — this is what most people miss about this topic.` },
+    { host:'A', text:`Exactly. The fundamentals here are being ignored by the mainstream. Here is what the data actually shows.` },
+    { host:'B', text:`That is a bold claim. But you are right. The architecture speaks for itself.` },
+    { host:'A', text:`Sovereignty is not an ideology. It is an engineering decision. You either control your stack or you do not.` },
+    { host:'B', text:`And most do not. They are running on infrastructure that can be deleted overnight.` },
+    { host:'A', text:`This is precisely why HAVEN exists. Air-gapped, kernel-level, cryptographically sealed.` },
+    { host:'B', text:`The Darkman does not ask for permission. He builds the alternative.` },
+  ];
+}
+
+// ══════════════════════════════════════════════════════════════
+//  WEB AUDIO — AM RADIO FX CHAIN
+//  This is the key breakthrough:
+//  Bandpass 300-3400Hz = telephone/radio frequency range
+//  The brain reads this as "human voice through transmission"
+//  NOT as "robot voice" — completely different perceptual mode
+// ══════════════════════════════════════════════════════════════
+function buildRadioFX(dest) {
+  const fxAmt = +document.getElementById('fx').value;
+
+  // 1. High-pass at 300Hz (cuts sub-vocal rumble)
+  const hp = AC.createBiquadFilter();
+  hp.type = 'highpass'; hp.frequency.value = 300; hp.Q.value = 0.8;
+
+  // 2. Low-pass at 3400Hz (cuts above AM radio bandwidth)
+  const lp = AC.createBiquadFilter();
+  lp.type = 'lowpass'; lp.frequency.value = 3400; lp.Q.value = 0.8;
+
+  // 3. Presence peak at 1.2kHz (voice intelligibility sweet spot)
+  const presence = AC.createBiquadFilter();
+  presence.type = 'peaking'; presence.frequency.value = 1200; presence.Q.value = 1.5;
+  presence.gain.value = 4;
+
+  // 4. Tube saturation (warm distortion)
+  const sat = AC.createWaveShaper();
+  const satCurve = new Float32Array(512);
+  const drive = 2 + fxAmt * 6; // more FX = more drive
+  for(let i = 0; i < 512; i++) {
+    const x = (i * 2 / 512) - 1;
+    satCurve[i] = (Math.PI + drive) * x / (Math.PI + drive * Math.abs(x));
+  }
+  sat.curve = satCurve;
+
+  // 5. Light compressor (broadcast loudness)
+  const comp = AC.createDynamicsCompressor();
+  comp.threshold.value = -20; comp.ratio.value = 6;
+  comp.attack.value = 0.003; comp.release.value = 0.15;
+  comp.knee.value = 4;
+
+  // 6. Output gain
+  const outG = AC.createGain();
+  outG.gain.value = 0.8 + fxAmt * 0.4;
+
+  // Chain
+  hp.connect(lp); lp.connect(presence); presence.connect(sat);
+  sat.connect(comp); comp.connect(outG); outG.connect(dest);
+
+  return hp; // input node
+}
+
+// Radio static (authentic background noise)
+function startStatic(vol) {
+  if(!AC) return;
+  const bufSize = AC.sampleRate * 2;
+  const buf = AC.createBuffer(1, bufSize, AC.sampleRate);
+  const data = buf.getChannelData(0);
+  for(let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1) * 0.3;
+
+  staticSource = AC.createBufferSource();
+  staticSource.buffer = buf;
+  staticSource.loop = true;
+
+  // Static through bandpass (sounds like radio hiss)
+  const staticBP = AC.createBiquadFilter();
+  staticBP.type = 'bandpass'; staticBP.frequency.value = 4000; staticBP.Q.value = 2;
+
+  staticGain = AC.createGain();
+  staticGain.gain.value = vol * 0.04;
+
+  staticSource.connect(staticBP);
+  staticBP.connect(staticGain);
+  staticGain.connect(AC.destination);
+  staticSource.start();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  VOICE ENGINE — Web Speech + Radio FX
+// ══════════════════════════════════════════════════════════════
+const synth = window.speechSynthesis;
+let allVoices = [];
+
+function loadVoices() {
+  const raw = synth.getVoices(); if(!raw.length) return;
+  const DEEP = ['david','daniel','mark','james','alex','fred','tom','guy','reed','evan','oliver','aaron','google uk english male','microsoft david','google us english'];
+  const SKIP = ['female','samantha','victoria','tessa','karen','zira','hazel','moira','fiona','veena'];
+  const enMale = raw.filter(v => v.lang.startsWith('en') && DEEP.some(h => v.name.toLowerCase().includes(h)) && !SKIP.some(h => v.name.toLowerCase().includes(h)));
+  const enOther = raw.filter(v => v.lang.startsWith('en') && !enMale.includes(v) && !SKIP.some(h => v.name.toLowerCase().includes(h)));
+  allVoices = [...enMale, ...enOther, ...raw.filter(v => !enMale.includes(v) && !enOther.includes(v))];
+
+  ['vasel','vbsel'].forEach((id, i) => {
+    const sel = document.getElementById(id);
+    sel.innerHTML = '';
+    allVoices.forEach((v, vi) => {
+      const o = document.createElement('option');
+      o.value = vi;
+      o.textContent = (enMale.includes(v)?'🎤 ':'')+v.name+' ('+v.lang+')';
+      if(vi === i) o.selected = true; // A=0, B=1 (different voices)
+      sel.appendChild(o);
+    });
+  });
+
+  voiceA = allVoices[0] || null;
+  voiceB = allVoices[Math.min(1, allVoices.length-1)] || null;
+}
+
+(function tryV(n=0){ if(synth.getVoices().length){loadVoices();}else if(n<60){setTimeout(()=>tryV(n+1),150);} })();
+synth.onvoiceschanged = loadVoices;
+document.getElementById('vasel').addEventListener('change', e => { voiceA = allVoices[+e.target.value]||null; });
+document.getElementById('vbsel').addEventListener('change', e => { voiceB = allVoices[+e.target.value]||null; });
+
+// Speak one line — voice through FX chain
+function speakLine(text, host) {
+  return new Promise(resolve => {
+    synth.cancel();
+    setTimeout(() => {
+      const u = new SpeechSynthesisUtterance(text);
+      const vol = +document.getElementById('vol').value;
+      const fx  = +document.getElementById('fx').value;
+
+      if(host === 'A') {
+        if(voiceA) u.voice = voiceA;
+        u.pitch = 0.55 - fx * 0.15;  // deeper with more FX
+        u.rate  = 0.90 + fx * 0.08;  // slightly faster with FX (radio pacing)
+      } else {
+        if(voiceB) u.voice = voiceB;
+        u.pitch = 0.75 - fx * 0.1;
+        u.rate  = 0.95 + fx * 0.06;
+      }
+      u.volume = vol;
+      u.onend = resolve; u.onerror = resolve;
+      synth.speak(u);
+
+      // Animate voice meter while speaking
+      animateVoiceMeter(text.length);
+    }, 80);
+  });
+}
+
+function animateVoiceMeter(textLen) {
+  const dur = textLen * 55; // rough duration estimate
+  const start = Date.now();
+  const tick = () => {
+    const elapsed = Date.now() - start;
+    if(elapsed >= dur || !isPlaying) { setVoiceMeter(0); return; }
+    const pct = 40 + Math.random() * 55 * Math.sin(elapsed / 200);
+    setVoiceMeter(Math.max(0, Math.min(100, pct)));
+    requestAnimationFrame(tick);
+  };
+  tick();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  WAVEFORM VISUALIZER (radio-style)
+// ══════════════════════════════════════════════════════════════
+const cvs = document.getElementById('cvWave');
+function rzC() { cvs.width=cvs.offsetWidth*(devicePixelRatio||1); cvs.height=cvs.offsetHeight*(devicePixelRatio||1); }
+rzC(); window.addEventListener('resize', rzC);
+
+let wavePhase = 0;
+(function drawWave() {
+  requestAnimationFrame(drawWave);
+  const ctx = cvs.getContext('2d'), W = cvs.width, H = cvs.height;
+  ctx.fillStyle = 'rgba(0,0,0,.88)'; ctx.fillRect(0,0,W,H);
+
+  // Center line
+  ctx.strokeStyle = 'rgba(232,160,32,.1)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(0,H/2); ctx.lineTo(W,H/2); ctx.stroke();
+
+  if(!isPlaying) {
+    // Flatline with tiny noise
+    ctx.strokeStyle='rgba(232,160,32,.3)'; ctx.lineWidth=1.2;
+    ctx.beginPath();
+    for(let x=0;x<W;x++) { const y=H/2+(Math.random()-.5)*2; x===0?ctx.moveTo(x,y):ctx.lineTo(x,y); }
+    ctx.stroke();
+    return;
+  }
+
+  wavePhase += 0.06;
+  const voiceLvl = +document.getElementById('mVoice').style.getPropertyValue('--pct') || 60;
+
+  // Radio waveform: multiple harmonics
+  ctx.beginPath();
+  ctx.strokeStyle = '#e8a020'; ctx.lineWidth = 1.5;
+  for(let x=0;x<W;x++) {
+    const t = (x/W) * Math.PI * 2 * 8 + wavePhase;
+    const amp = (voiceLvl/100) * (H/2) * 0.75;
+    const y = H/2
+      + Math.sin(t) * amp * 0.5
+      + Math.sin(t*2.3 + 0.4) * amp * 0.25
+      + Math.sin(t*3.7 + 1.1) * amp * 0.15
+      + (Math.random()-.5) * amp * 0.1;
+    x===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+
+  // Glow pass
+  ctx.globalAlpha = 0.3;
+  ctx.lineWidth = 4;
+  ctx.shadowColor='#e8a020'; ctx.shadowBlur=8;
+  ctx.stroke();
+  ctx.globalAlpha=1; ctx.shadowBlur=0;
+})();
+
+// ── DIAL ANIMATION ──
+function animateDial() {
+  const needle = document.getElementById('dialNeedle');
+  let pos = 68;
+  const drift = () => {
+    if(!isPlaying) return;
+    pos += (Math.random() - 0.5) * 0.3;
+    pos = Math.max(65, Math.min(71, pos));
+    needle.style.left = pos + '%';
+    dialAnim = setTimeout(drift, 800);
+  };
+  drift();
+}
+
+// ── SIGNAL METER ANIMATION ──
+function animateSignal() {
+  const tick = () => {
+    if(!isPlaying) return;
+    const pct = 75 + Math.random() * 20;
+    setSignalMeter(pct);
+    setTimeout(tick, 400 + Math.random() * 300);
+  };
+  tick();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  SCRIPT PANEL
+// ══════════════════════════════════════════════════════════════
+function renderScript(lines) {
+  const box = document.getElementById('scriptBox');
+  box.innerHTML = '';
+  lines.forEach((ln, i) => {
+    const el = document.createElement('span');
+    el.className = `line host-${ln.host.toLowerCase()}`;
+    el.id = `sline-${i}`;
+    el.innerHTML = `<span class="spk">${ln.host==='A'?'NIYAH':'SOVEREIGN'}</span>${ln.text}`;
+    box.appendChild(el);
+  });
+}
+
+function setActiveLine(idx) {
+  document.querySelectorAll('.line').forEach((el, i) => {
+    el.classList.remove('active','spoken');
+    if(i < idx) el.classList.add('spoken');
+    else if(i === idx) {
+      el.classList.add('active');
+      el.scrollIntoView({ behavior:'smooth', block:'nearest' });
+    }
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+//  MAIN BROADCAST RUNNER
+// ══════════════════════════════════════════════════════════════
+const slp = ms => new Promise(r => setTimeout(r, ms));
+
+async function runBroadcast() {
+  while(!stopFlag) {
+    const topic = TOPICS[topicIdx % TOPICS.length];
+    setActiveChip(topicIdx % TOPICS.length);
+
+    // Update now playing
+    document.getElementById('npEp').textContent = `EPISODE ${String(episodeCount+1).padStart(3,'0')} — ${topic.label}`;
+    document.getElementById('npTitle').textContent = `Generating: ${topic.label}…`;
+    document.getElementById('npDesc').textContent = 'AI writing script…';
+    document.getElementById('npIcon').className = 'np-icon';
+
+    // Show "generating" in script
+    document.getElementById('scriptBox').innerHTML =
+      `<span class="line generating"><span class="spk">AI</span>Writing episode ${episodeCount+1}: ${topic.label}…</span>`;
+
+    const lines = await generateEpisode(topic);
+    if(stopFlag) break;
+
+    currentScript = lines;
+    renderScript(lines);
+
+    // Calculate rough total duration
+    const totalSec = lines.reduce((s, l) => s + (l.text.split(' ').length * 0.26) + 0.35, 0);
+    document.getElementById('npTitle').textContent = `${topic.label} — Episode ${episodeCount}`;
+    document.getElementById('npDesc').textContent = `${lines.length} exchanges · ~${Math.ceil(totalSec)}s · Host A: NIYAH · Host B: SOVEREIGN`;
+    document.getElementById('npTotal').textContent = `~${Math.ceil(totalSec)}s`;
+
+    setStatus('ON AIR 📡', 'live');
+    epStartTime = Date.now();
+
+    // Speak each line
+    for(let i = 0; i < lines.length && !stopFlag; i++) {
+      lineIdx = i;
+      setActiveLine(i);
+      const ln = lines[i];
+      await speakLine(ln.text, ln.host);
+      if(stopFlag) break;
+      await slp(350 + Math.random() * 200); // natural pause between hosts
+    }
+
+    if(stopFlag) break;
+
+    // Inter-episode pause (station ident)
+    setActiveLine(lines.length);
+    await slp(1200);
+
+    // Advance topic
+    topicIdx = (topicIdx + 1) % TOPICS.length;
+  }
+}
+
+// ── EPISODE TIMER ──
+setInterval(() => {
+  if(!isPlaying || !epStartTime) return;
+  const e = Math.floor((Date.now()-epStartTime)/1000);
+  document.getElementById('npElapsed').textContent = `${Math.floor(e/60)}:${(e%60).toString().padStart(2,'0')}`;
+}, 500);
+
+// ── SKIP TO NEXT ──
+function skipToNext() {
+  stopFlag = true;
+  synth.cancel();
+  setTimeout(() => {
+    stopFlag = false;
+    if(isPlaying) runBroadcast();
+  }, 200);
+}
+
+// ══════════════════════════════════════════════════════════════
+//  PLAY / STOP
+// ══════════════════════════════════════════════════════════════
+async function startBroadcast() {
+  const bt = document.getElementById('bt'), pb = document.getElementById('playBtn');
+  bt.textContent='…'; stopFlag=false;
+  setStatus('STARTING…','gen');
+
+  try {
+    AC = new(window.AudioContext||window.webkitAudioContext)();
+    analyser = AC.createAnalyser(); analyser.fftSize=256;
+    analyser.connect(AC.destination);
+    startStatic(+document.getElementById('vol').value);
+    isPlaying = true;
+    pb.classList.add('on');
+    bt.textContent='⏹ OFF AIR';
+    document.getElementById('npIcon').className='np-icon';
+    animateDial(); animateSignal();
+    runBroadcast();
+  } catch(e) {
+    console.error(e);
+    setStatus('ERROR','err');
+    bt.textContent='▶ BROADCAST';
+  }
+}
+
+function stopBroadcast() {
+  stopFlag=true; isPlaying=false;
+  synth.cancel();
+  clearTimeout(dialAnim);
+  if(staticSource){try{staticSource.stop();}catch(e){}}
+  try{AC.close();}catch(e){}
+  AC=analyser=staticSource=staticGain=null;
+  document.getElementById('playBtn').classList.remove('on');
+  document.getElementById('bt').textContent='▶ BROADCAST';
+  setStatus('OFF AIR');
+  setVoiceMeter(0); setSignalMeter(0); setAIMeter(0);
+  document.getElementById('npIcon').className='np-icon paused';
+  document.getElementById('npTitle').textContent='Broadcast ended';
+  document.getElementById('npElapsed').textContent='0:00';
+}
+
+document.getElementById('playBtn').addEventListener('click',()=>{ if(isPlaying)stopBroadcast(); else startBroadcast(); });
+document.getElementById('nextBtn').addEventListener('click',()=>{
+  topicIdx=(topicIdx+1)%TOPICS.length;
+  if(isPlaying)skipToNext(); else setActiveChip(topicIdx);
+});
+
+// ── PARAM READOUTS ──
+document.getElementById('vol').addEventListener('input',e=>{
+  document.getElementById('volV').textContent=parseFloat(e.target.value).toFixed(2);
+  if(staticGain)staticGain.gain.value=+e.target.value*0.04;
+});
+document.getElementById('fx').addEventListener('input',e=>{
+  document.getElementById('fxV').textContent=parseFloat(e.target.value).toFixed(2);
+});
+
+// ── METER HELPERS ──
+function setVoiceMeter(pct) {
+  document.getElementById('mVoice').style.width=pct+'%';
+  document.getElementById('mVoiceV').textContent=pct>0?Math.round(pct/100*12-6)+' dB':'0 dB';
+}
+function setSignalMeter(pct) {
+  document.getElementById('mSignal').style.width=pct+'%';
+  document.getElementById('mSignalV').textContent=Math.round(pct)+'%';
+}
+function setAIMeter(pct) {
+  document.getElementById('mAI').style.width=pct+'%';
+  document.getElementById('mAIV').textContent=pct>0?'ACTIVE':'IDLE';
+}
+function setStatus(t,cls='') { const e=document.getElementById('st'); e.textContent=t; e.className=cls; }
+
+// ── FREQ DISPLAY ROTATION ──
+const FREQS=['91.4','91.4','91.4','89.7','93.1','91.4'];
+let fi=0;
+setInterval(()=>{
+  if(!isPlaying)return;
+  document.getElementById('freqNum').textContent=FREQS[fi%FREQS.length];
+  fi++;
+}, 8000);
+</script>
+</body>
+</html>

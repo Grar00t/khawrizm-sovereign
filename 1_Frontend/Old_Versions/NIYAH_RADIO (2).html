@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NIYAH RADIO — SOVEREIGN LOCAL BROADCAST</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@300;400;700&display=swap');
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#040404;--coal:#0d0d0d;--iron:#171717;--wire:#252525;
+  --bone:#e0d4c2;--pale:#968c7c;--fade:#464038;
+  --amber:#e09818;--hot:#ff2020;--green:#00c45a;--cyan:#00ccee;
+}
+html,body{height:100%;background:var(--bg)}
+body{color:var(--bone);font-family:'IBM Plex Mono',monospace;min-height:100vh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:200;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.04) 2px,rgba(0,0,0,.04) 3px)}
+
+/* ── HEADER ── */
+header{width:100%;max-width:900px;padding:26px 28px 0;z-index:10;position:relative}
+.top-row{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.callsign{font-family:'Bebas Neue',sans-serif;font-size:clamp(46px,8.5vw,92px);line-height:.86;letter-spacing:.04em;color:var(--amber);text-shadow:0 0 40px rgba(224,152,24,.25)}
+.right-block{text-align:right;padding-bottom:4px}
+.freq{font-size:26px;font-weight:700;color:var(--amber);letter-spacing:.06em}
+.freqband{font-size:8px;letter-spacing:.4em;color:var(--fade);margin-top:2px}
+.onair{display:flex;align-items:center;gap:6px;justify-content:flex-end;margin-top:5px}
+.dot{width:6px;height:6px;background:var(--green);border-radius:50%;box-shadow:0 0 7px var(--green);animation:bl .9s infinite}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.15}}
+.onair-txt{font-size:8px;letter-spacing:.35em;color:var(--green);text-transform:uppercase}
+.hl{width:100%;height:1px;background:linear-gradient(90deg,var(--amber),rgba(224,152,24,.15) 65%,transparent);margin-top:12px}
+
+/* ── ENGINE STATUS ── */
+.eng-row{
+  width:100%;max-width:900px;padding:8px 28px;
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  border-bottom:1px solid var(--wire);z-index:10;position:relative;
+}
+.eng-item{font-size:8px;letter-spacing:.18em;color:var(--fade);white-space:nowrap}
+.eng-item b{color:var(--amber)}
+.eng-item.ok b{color:var(--green)}
+.eng-item.err b{color:var(--hot)}
+.eng-item.gen b{color:var(--cyan)}
+.esep{color:var(--wire);font-size:11px}
+.local-badge{
+  margin-left:auto;font-size:7.5px;letter-spacing:.2em;
+  border:1px solid var(--green);color:var(--green);padding:3px 9px;
+}
+
+/* ── METERS ── */
+.meters{width:100%;max-width:900px;padding:10px 28px 0;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;z-index:10;position:relative}
+.mbox{background:var(--coal);border:1px solid var(--wire);padding:9px 12px}
+.mlbl{font-size:7px;letter-spacing:.3em;color:var(--fade);margin-bottom:5px;text-transform:uppercase}
+.mbar{width:100%;height:5px;background:var(--iron);overflow:hidden}
+.mfill{height:100%;background:linear-gradient(90deg,var(--green),var(--amber) 70%,var(--hot));transition:width .1s}
+.mval{font-size:9px;color:var(--amber);margin-top:3px;letter-spacing:.07em}
+
+/* ── FREQ DIAL ── */
+.dial-wrap{width:100%;max-width:900px;padding:10px 28px 0;z-index:10;position:relative}
+.dial{width:100%;height:32px;background:var(--coal);border:1px solid var(--wire);position:relative;overflow:hidden}
+.dial-bg{position:absolute;inset:0;
+  background:repeating-linear-gradient(90deg,transparent,transparent 18px,rgba(224,152,24,.1) 18px,rgba(224,152,24,.1) 19px)}
+.dlbl{position:absolute;top:50%;left:0;right:0;transform:translateY(-50%);
+  display:flex;justify-content:space-between;padding:0 5px;pointer-events:none}
+.dlbl span{font-size:7px;color:var(--fade)}
+.needle{position:absolute;top:0;bottom:0;width:2px;background:var(--amber);
+  box-shadow:0 0 8px var(--amber),0 0 18px rgba(224,152,24,.4);left:67%;transition:left 2s ease}
+
+/* ── WAVEFORM ── */
+.ww{width:100%;max-width:900px;padding:8px 28px 0;z-index:10;position:relative}
+#cvW{width:100%;height:60px;display:block;border:1px solid var(--wire)}
+
+/* ── NOW PLAYING ── */
+.np{width:100%;max-width:900px;padding:10px 28px 0;z-index:10;position:relative}
+.npbox{background:var(--coal);border:1px solid rgba(224,152,24,.2);padding:12px 16px;
+  display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}
+.npico{font-size:20px;animation:sp 3s linear infinite}
+@keyframes sp{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.npico.idle{animation:none}
+.npmeta{}
+.npep{font-size:8px;letter-spacing:.22em;color:var(--amber);margin-bottom:2px}
+.nptitle{font-size:12px;font-weight:700;letter-spacing:.04em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.npdesc{font-size:8px;color:var(--pale);margin-top:2px;letter-spacing:.04em}
+.nptimer{text-align:right}
+.nptime{font-size:17px;font-weight:700;color:var(--amber);letter-spacing:.08em}
+.nptot{font-size:8px;color:var(--fade)}
+
+/* ── CONTROLS ── */
+.ctrl{width:100%;max-width:900px;padding:10px 28px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;z-index:10;position:relative}
+.btn{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:.25em;color:var(--bone);background:none;border:1px solid var(--wire);padding:9px 20px;cursor:pointer;position:relative;overflow:hidden;flex-shrink:0}
+.btn::before{content:'';position:absolute;inset:0;background:var(--amber);transform:scaleX(0);transform-origin:left;transition:transform .15s}
+.btn:hover::before{transform:scaleX(1)}
+.btn span{position:relative;z-index:1}
+.btn.primary{border-color:var(--amber);color:var(--amber)}
+.btn.primary.on::before{transform:scaleX(.04)}
+.btn.primary.on{border-color:var(--hot)}
+.sg{display:flex;align-items:center;gap:5px}
+.sg label{font-size:7.5px;color:var(--fade);letter-spacing:.14em;text-transform:uppercase;white-space:nowrap}
+input[type=range]{-webkit-appearance:none;height:2px;background:var(--iron);outline:none;cursor:pointer;width:56px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:9px;height:9px;background:var(--amber);border-radius:50%}
+.rv{font-size:8px;color:var(--pale);min-width:24px;text-align:right}
+#st{font-size:8px;letter-spacing:.13em;color:var(--fade);margin-left:auto;white-space:nowrap}
+#st.live{color:var(--green)} #st.gen{color:var(--cyan)} #st.err{color:var(--hot)}
+
+/* ── VOICE BAR ── */
+.vbar{width:100%;max-width:900px;padding:0 28px 10px;display:flex;align-items:center;gap:9px;flex-wrap:wrap;border-bottom:1px solid var(--wire);z-index:10;position:relative}
+.vbar label{font-size:7.5px;letter-spacing:.14em;color:var(--fade);text-transform:uppercase;white-space:nowrap}
+select{background:var(--coal);color:var(--bone);border:1px solid var(--wire);font-family:'IBM Plex Mono',monospace;font-size:9px;padding:4px 7px;cursor:pointer;min-width:110px;max-width:190px;outline:none}
+select:focus{border-color:var(--amber)}
+.fx-tag{font-size:7.5px;letter-spacing:.15em;padding:3px 9px;border:1px solid rgba(0,196,90,.4);color:var(--green)}
+
+/* ── MODEL BAR ── */
+.mbar2{width:100%;max-width:900px;padding:0 28px 10px;display:flex;align-items:center;gap:9px;flex-wrap:wrap;z-index:10;position:relative}
+.mbar2 label{font-size:7.5px;letter-spacing:.14em;color:var(--fade);text-transform:uppercase}
+#modelSel{background:var(--coal);color:var(--cyan);border:1px solid rgba(0,204,238,.3);font-family:'IBM Plex Mono',monospace;font-size:9px;padding:4px 7px;cursor:pointer;min-width:160px;max-width:260px;outline:none}
+.model-status{font-size:8px;letter-spacing:.12em;color:var(--fade);margin-left:auto}
+.model-status b{color:var(--cyan)}
+
+/* ── TOPIC CHIPS ── */
+.tq{width:100%;max-width:900px;padding:8px 28px 0;z-index:10;position:relative}
+.tq-hdr{font-size:7.5px;letter-spacing:.28em;color:var(--fade);text-transform:uppercase;margin-bottom:6px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-size:7.5px;letter-spacing:.1em;color:var(--fade);border:1px solid var(--wire);padding:3px 9px;cursor:pointer;transition:all .14s;text-transform:uppercase}
+.chip:hover{border-color:var(--amber);color:var(--amber)}
+.chip.on{border-color:var(--amber);color:var(--amber);background:rgba(224,152,24,.06)}
+
+/* ── TRANSCRIPT ── */
+.trans{width:100%;max-width:900px;padding:8px 28px 0;z-index:10;position:relative}
+.trans-hdr{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.trans-ttl{font-size:8px;letter-spacing:.28em;color:var(--amber);text-transform:uppercase}
+.trans-sep{flex:1;height:1px;background:var(--wire)}
+.tbox{background:var(--coal);border:1px solid var(--wire);padding:14px 16px;min-height:150px;max-height:240px;overflow-y:auto;scroll-behavior:smooth}
+.tbox::-webkit-scrollbar{width:3px}
+.tbox::-webkit-scrollbar-thumb{background:var(--wire)}
+.ln{display:block;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:12px;line-height:1.65;letter-spacing:.03em;opacity:.25;transition:opacity .35s,color .3s}
+.ln.A{color:var(--amber)}
+.ln.B{color:var(--cyan)}
+.ln.now{opacity:1;font-weight:700;font-size:13px}
+.ln.done{opacity:.3}
+.ln .spk{font-size:7.5px;letter-spacing:.2em;margin-right:7px;opacity:.65;font-weight:300}
+.ln.thinking{color:var(--pale);font-style:italic;opacity:.5;animation:tp .8s infinite}
+@keyframes tp{0%,100%{opacity:.3}50%{opacity:.6}}
+
+/* ── TICKER ── */
+.ticker{width:100%;background:var(--amber);overflow:hidden;padding:4px 0;z-index:10;position:relative;margin-top:12px}
+.ticker-inner{display:flex;white-space:nowrap;animation:tk 50s linear infinite}
+@keyframes tk{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.ti{font-size:8px;font-weight:700;letter-spacing:.2em;color:var(--bg);padding:0 24px;text-transform:uppercase}
+.ts{color:rgba(0,0,0,.3);padding:0 3px}
+
+/* ── FOOTER ── */
+footer{width:100%;max-width:900px;padding:10px 28px 26px;display:flex;justify-content:space-between;border-top:1px solid var(--wire);z-index:10;position:relative;margin-top:12px}
+.fs{font-size:7.5px;color:var(--fade);letter-spacing:.15em}
+.fs b{color:var(--amber)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="top-row">
+    <div>
+      <div class="callsign">NIYAH<br>RADIO</div>
+      <div class="onair" style="margin-top:5px">
+        <span class="dot"></span>
+        <span class="onair-txt">LIVE · SOVEREIGN LOCAL NETWORK · 24/7</span>
+      </div>
+    </div>
+    <div class="right-block">
+      <div class="freq" id="freqDisp">91.4</div>
+      <div class="freqband">FM · HAVEN SOVEREIGN BAND</div>
+      <div style="font-size:7.5px;color:var(--fade);margin-top:3px;letter-spacing:.13em">D:\ LOCAL · RIYADH · SNAPDRAGON X ELITE</div>
+    </div>
+  </div>
+  <div class="hl"></div>
+</header>
+
+<!-- ENGINE STATUS -->
+<div class="eng-row">
+  <div class="eng-item" id="eOllama">OLLAMA: <b id="ollamaV">CHECKING…</b></div>
+  <div class="esep">·</div>
+  <div class="eng-item" id="eModel">MODEL: <b id="modelV">—</b></div>
+  <div class="esep">·</div>
+  <div class="eng-item">VOICE FX: <b style="color:var(--green)">AM CHAIN</b></div>
+  <div class="esep">·</div>
+  <div class="eng-item">BPM: <b>96</b></div>
+  <div class="esep">·</div>
+  <div class="eng-item">INTERNET: <b style="color:var(--hot)">NOT USED</b></div>
+  <div class="local-badge">100% LOCAL</div>
+</div>
+
+<!-- METERS -->
+<div class="meters">
+  <div class="mbox">
+    <div class="mlbl">Signal</div>
+    <div class="mbar"><div class="mfill" id="mSig" style="width:80%"></div></div>
+    <div class="mval" id="mSigV">80%</div>
+  </div>
+  <div class="mbox">
+    <div class="mlbl">Voice Level</div>
+    <div class="mbar"><div class="mfill" id="mVox" style="width:0%"></div></div>
+    <div class="mval" id="mVoxV">— dB</div>
+  </div>
+  <div class="mbox">
+    <div class="mlbl">LLM Engine</div>
+    <div class="mbar"><div class="mfill" id="mLLM" style="width:0%;background:var(--cyan)"></div></div>
+    <div class="mval" id="mLLMV" style="color:var(--cyan)">IDLE</div>
+  </div>
+</div>
+
+<!-- DIAL -->
+<div class="dial-wrap">
+  <div class="dial">
+    <div class="dial-bg"></div>
+    <div class="dlbl">
+      <span>87.5</span><span>90</span><span>92.5</span><span>95</span>
+      <span>97.5</span><span>100</span><span>103</span><span>106</span>
+    </div>
+    <div class="needle" id="needle"></div>
+  </div>
+</div>
+
+<!-- WAVEFORM -->
+<div class="ww"><canvas id="cvW"></canvas></div>
+
+<!-- NOW PLAYING -->
+<div class="np">
+  <div class="npbox">
+    <div class="npico idle" id="npIco">📻</div>
+    <div class="npmeta">
+      <div class="npep" id="npEp">EPISODE 000</div>
+      <div class="nptitle" id="npTitle">Awaiting sovereign transmission…</div>
+      <div class="npdesc" id="npDesc">Press BROADCAST — local LLM generates live content</div>
+    </div>
+    <div class="nptimer">
+      <div class="nptime" id="npT">0:00</div>
+      <div class="nptot" id="npTot">—</div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTROLS -->
+<div class="ctrl">
+  <button class="btn primary" id="playBtn"><span id="bt">▶ BROADCAST</span></button>
+  <button class="btn" id="nextBtn"><span>⏭ SKIP</span></button>
+  <div class="sg"><label>VOL</label><input type="range" id="vol" min="0" max="1" step="0.05" value="0.9"><span class="rv" id="volV">0.9</span></div>
+  <div class="sg"><label>FX</label><input type="range" id="fxR" min="0" max="1" step="0.05" value="0.65"><span class="rv" id="fxV">0.65</span></div>
+  <div class="sg"><label>SPEED</label><input type="range" id="spd" min="0.7" max="1.3" step="0.05" value="0.88"><span class="rv" id="spdV">0.88</span></div>
+  <div id="st">READY</div>
+</div>
+
+<!-- MODEL + VOICE -->
+<div class="mbar2">
+  <label>LOCAL MODEL</label>
+  <select id="modelSel">
+    <option value="niyah">niyah (custom)</option>
+    <option value="deepseek-r1:14b">deepseek-r1:14b</option>
+    <option value="llama3.2:latest">llama3.2:latest</option>
+    <option value="llama3.1:8b">llama3.1:8b</option>
+    <option value="mistral:latest">mistral:latest</option>
+    <option value="gemma2:9b">gemma2:9b</option>
+    <option value="qwen2.5:14b">qwen2.5:14b</option>
+  </select>
+  <div class="model-status">ENGINE: <b id="engMode">DETECTING OLLAMA…</b></div>
+</div>
+
+<div class="vbar">
+  <label>HOST A</label><select id="vaS"></select>
+  <label>HOST B</label><select id="vbS"></select>
+  <div class="fg-tag fx-tag">📡 AM RADIO FX: 300-3400Hz BANDPASS + TUBE + STATIC</div>
+</div>
+
+<!-- TOPICS -->
+<div class="tq">
+  <div class="tq-hdr">LIVE TOPIC ROTATION — CLICK TO JUMP</div>
+  <div class="chips" id="chips"></div>
+</div>
+
+<!-- TRANSCRIPT -->
+<div class="trans" style="margin-top:10px">
+  <div class="trans-hdr">
+    <div class="trans-ttl">LIVE TRANSCRIPT</div>
+    <div class="trans-sep"></div>
+    <div style="font-size:7.5px;color:var(--fade);letter-spacing:.15em">TWO-HOST · LOCAL LLM · REAL-TIME</div>
+  </div>
+  <div class="tbox" id="tbox">
+    <span class="ln thinking"><span class="spk">SYS</span>Checking local LLM engine…</span>
+  </div>
+</div>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner" id="tickInner"></div>
+</div>
+
+<footer>
+  <div class="fs"><b>📻</b> NIYAH RADIO · SOVEREIGN LOCAL NETWORK · D:\ DRIVE · RIYADH</div>
+  <div class="fs">NO CLOUD · NO EXTERNAL API · <b>100% LOCAL LLM</b></div>
+</footer>
+
+<script>
+'use strict';
+// ═══════════════════════════════════════════════════════════
+//  NIYAH RADIO — 100% LOCAL SOVEREIGN BROADCAST
+//  ─ Ollama local LLM (localhost:11434) generates content
+//  ─ Fallback: deterministic script engine (no internet needed)
+//  ─ AM Radio FX: bandpass 300-3400Hz + tube sat + static
+//  ─ Two voice hosts, speech via Web Speech API (OS-local)
+//  ─ ZERO external calls · ZERO CDN · ZERO cloud
+// ═══════════════════════════════════════════════════════════
+
+const OLLAMA = 'http://localhost:11434';
+let ollamaOK = false;
+let activeModel = 'niyah';
+let isPlaying = false, stopFlag = false;
+let epCount = 0, topicIdx = 0;
+let AC, staticSrc, staticG;
+let voiceA = null, voiceB = null;
+let epStart = 0, epTimer;
+let needleAnim, signalAnim;
+
+// ── TOPICS — all about your actual stack ──
+const TOPICS = [
+  {
+    id:'haven', label:'HAVEN OS',
+    brief:'sovereign OS on Snapdragon X Elite, air-gapped, ARM64, Phalanx Protocol kernel-level telemetry blocker, WSL2-Kali bridge, custom boot sequence',
+    angle:'Why a sovereign OS matters more than any cloud platform. The architecture decisions behind air-gapped computing.'
+  },
+  {
+    id:'kforge', label:'K-FORGE VCS',
+    brief:'P2P cryptographically undeletable version control, Yjs CRDT sync, libp2p Kademlia DHT, content-addressed Merkle DAG, accounts deleted by GitHub without reason',
+    angle:'The real story behind building infrastructure that cannot be censored or deleted. Why centralized version control is a sovereignty trap.'
+  },
+  {
+    id:'niyah', label:'NIYAH ENGINE',
+    brief:'Three-Lobe AI architecture: Executive lobe for decisions, Sensory lobe for input processing, Cognitive lobe for reasoning. Rust FFI bridge, ARM64 NPU offload, Arabic-first on-device',
+    angle:'Designing AI that lives on-device, not in the cloud. The engineering challenge of Arabic-first neural architecture.'
+  },
+  {
+    id:'dragon', label:'DRAGON403 CASE',
+    brief:'Chinese fraud network HILO token Ethereum, vochat APK reverse-engineered, C2 at China Telecom IP, blockchain forensics, 730+ days investigation, case filed ignored',
+    angle:'Independent forensic investigation against a fraud network targeting Gulf Arabs. How one person does the work that institutions refuse to do.'
+  },
+  {
+    id:'rust', label:'RUST SYSTEMS',
+    brief:'unsafe Rust, PyO3 FFI, ARM64 assembly, no_std embedded, niyah-core Cargo.toml, ptrace bridge for kernel introspection, AARCH64 memory model',
+    angle:'Why Rust is the only viable language for sovereign infrastructure. The technical depth required to build kernel-level systems.'
+  },
+  {
+    id:'pdpl', label:'SAUDI PDPL',
+    brief:'Personal Data Protection Law compliance, Zero-Cloud architecture, local AI inference, regulatory fine exposure vs subscription cost, Saudi Vision 2030 tech sovereignty',
+    angle:'PDPL as the forcing function for sovereign AI. Why enterprises have no choice but to go local.'
+  },
+  {
+    id:'comet', label:'COMET-X MESH',
+    brief:'local-first P2P browser extension, Yjs CRDT, WebRTC peer mesh, no central server, Comet-X methodology for solo founders with five AI models in specialized roles',
+    angle:'Building distributed systems that work without any central authority. The solo founder multi-agent methodology.'
+  },
+  {
+    id:'phil', label:'SOVEREIGNTY PHILOSOPHY',
+    brief:'Al-Khwarizmi legacy, algorithm as law, Nietzsche will to power applied to infrastructure, Amor Fati — loving the technical constraints, the Darkman as sovereign architect',
+    angle:'The philosophical foundation of building infrastructure that cannot be taken away. From Al-Khwarizmi to modern cryptographic sovereignty.'
+  },
+];
+
+// ── TICKER ──
+const TICKS = [
+  '📻 NIYAH RADIO LIVE — SOVEREIGN LOCAL BROADCAST',
+  '🔴 DRAGON403 INVESTIGATION: ACTIVE — 730+ DAYS',
+  '💀 HAVEN OS: AIR-GAPPED · ARM64 · PHALANX PROTOCOL',
+  '⚡ K-FORGE: CRYPTOGRAPHICALLY UNDELETABLE VCS',
+  '🧠 NIYAH ENGINE: THREE-LOBE ARCHITECTURE · ON-DEVICE',
+  '🛡️ ZERO CLOUD · ZERO EXTERNAL API · D:\\ SOVEREIGN',
+  '🔧 RUST + PTRACE + AARCH64 ASSEMBLY · KERNEL DEEP',
+  '📡 100% LOCAL LLM · OLLAMA · NO INTERNET REQUIRED',
+];
+const ti = document.getElementById('tickInner');
+const doubled = [...TICKS,...TICKS];
+ti.innerHTML = doubled.map(t=>`<span class="ti">${t}</span><span class="ts">◆</span>`).join('');
+
+// ── TOPIC CHIPS ──
+const chipsEl = document.getElementById('chips');
+TOPICS.forEach((t,i)=>{
+  const c = document.createElement('div');
+  c.className='chip'+(i===0?' on':''); c.id='chip-'+t.id;
+  c.textContent=t.label;
+  c.addEventListener('click',()=>{ topicIdx=i; if(isPlaying)skipNow(); });
+  chipsEl.appendChild(c);
+});
+function setChip(i){
+  document.querySelectorAll('.chip').forEach((c,j)=>c.classList.toggle('on',j===i));
+}
+
+// ═══════════════════════════════════════════════════════════
+//  OLLAMA DETECTION + MODEL DISCOVERY
+// ═══════════════════════════════════════════════════════════
+async function detectOllama() {
+  try {
+    const r = await fetch(`${OLLAMA}/api/tags`, { signal: AbortSignal.timeout(2000) });
+    if(!r.ok) throw new Error();
+    const d = await r.json();
+    const models = d.models || [];
+
+    ollamaOK = true;
+    setEngItem('eOllama','ok',`OLLAMA: RUNNING`,'ollamaV','ONLINE');
+    setEngMode('OLLAMA LOCAL');
+
+    // Populate model selector with discovered models
+    const sel = document.getElementById('modelSel');
+    sel.innerHTML = '';
+    if(models.length > 0){
+      models.forEach(m=>{
+        const o=document.createElement('option');
+        o.value=m.name; o.textContent=m.name;
+        sel.appendChild(o);
+      });
+      activeModel = models[0].name;
+      document.getElementById('modelV').textContent = activeModel;
+    } else {
+      // No models found but Ollama is running
+      sel.innerHTML='<option value="llama3.2:latest">llama3.2:latest</option>';
+      activeModel='llama3.2:latest';
+      document.getElementById('modelV').textContent=activeModel;
+    }
+
+    setStatus('OLLAMA READY','live');
+    setTranscript('<span class="ln thinking"><span class="spk">SYS</span>Ollama online. Press BROADCAST to start live generation.</span>');
+    return true;
+
+  } catch(e) {
+    ollamaOK = false;
+    setEngItem('eOllama','err','OLLAMA: OFFLINE','ollamaV','OFFLINE');
+    setEngMode('DETERMINISTIC MODE');
+    document.getElementById('modelV').textContent = 'BUILT-IN';
+    setStatus('FALLBACK MODE');
+    setTranscript('<span class="ln thinking"><span class="spk">SYS</span>Ollama not found at localhost:11434. Using built-in script engine. To enable local LLM: run "ollama serve" in terminal.</span>');
+    return false;
+  }
+}
+
+document.getElementById('modelSel').addEventListener('change', e=>{
+  activeModel=e.target.value;
+  document.getElementById('modelV').textContent=activeModel;
+});
+
+// ═══════════════════════════════════════════════════════════
+//  LLM SCRIPT GENERATION
+// ═══════════════════════════════════════════════════════════
+async function generateScript(topic) {
+  if(ollamaOK){
+    return await generateOllama(topic);
+  } else {
+    return generateDeterministic(topic);
+  }
+}
+
+async function generateOllama(topic) {
+  setLLMMeter(15);
+  setEngMode('GENERATING…');
+
+  const prompt = `You are two radio hosts on a sovereign tech broadcast station.
+HOST A name: NIYAH — analytical, technical, precise, deep
+HOST B name: SOVEREIGN — curious, provocative, asks the hard questions
+
+Topic: ${topic.label}
+Key facts: ${topic.brief}
+Angle: ${topic.angle}
+Episode: ${epCount + 1}
+
+Generate a natural radio conversation with exactly 10 short exchanges.
+Each line maximum 2 sentences. Make it technically substantive, not generic.
+Start with HOST A.
+
+Respond ONLY with a JSON array, no explanation, no markdown:
+[{"h":"A","t":"..."},{"h":"B","t":"..."},...]`;
+
+  try {
+    const r = await fetch(`${OLLAMA}/api/generate`, {
+      method: 'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model: activeModel,
+        prompt: prompt,
+        stream: false,
+        options:{ temperature:0.72, top_p:0.9, num_predict:800 }
+      }),
+      signal: AbortSignal.timeout(45000)
+    });
+
+    setLLMMeter(80);
+    const d = await r.json();
+    let raw = d.response || '[]';
+
+    // Parse
+    try {
+      const clean = raw.replace(/```json\n?/g,'').replace(/```\n?/g,'').trim();
+      // find first [ and last ]
+      const start = clean.indexOf('['), end = clean.lastIndexOf(']');
+      if(start>=0 && end>start){
+        const parsed = JSON.parse(clean.slice(start, end+1));
+        setLLMMeter(100); setTimeout(()=>setLLMMeter(0),600);
+        setEngMode('OLLAMA LOCAL');
+        return parsed.map(x=>({host:x.h||'A', text:x.t||''})).filter(x=>x.text);
+      }
+    } catch(e){}
+
+    // Fallback parse
+    setLLMMeter(100); setTimeout(()=>setLLMMeter(0),600);
+    setEngMode('OLLAMA LOCAL');
+    return parseFallback(raw);
+
+  } catch(e) {
+    console.warn('Ollama error:', e.message);
+    setLLMMeter(0); setEngMode('FALLBACK');
+    return generateDeterministic(topic);
+  }
+}
+
+function parseFallback(raw) {
+  const out=[];
+  const re=/"h"\s*:\s*"([AB])"\s*,\s*"t"\s*:\s*"([^"]+)"/g;
+  let m;
+  while((m=re.exec(raw))!==null) out.push({host:m[1],text:m[2]});
+  return out.length>0?out:null;
+}
+
+// ── DETERMINISTIC ENGINE — rich, topic-specific content ──
+function generateDeterministic(topic) {
+  const scripts = {
+    haven: [
+      {host:'A',text:`HAVEN OS is not a Linux distro. It is a sovereignty decision made at the kernel level.`},
+      {host:'B',text:`Walk me through the actual threat model. Why does air-gapping matter when you have WSL2 running Kali?`},
+      {host:'A',text:`The Phalanx Protocol runs beneath the scheduler — it blocks telemetry before it reaches any network interface. The WSL2 bridge is bidirectional by design, but all traffic passes through a namespace gate.`},
+      {host:'B',text:`That's the part most OS builders skip. They think isolation is a firewall rule. You're saying it's a kernel primitive.`},
+      {host:'A',text:`Exactly. On ARM64, the memory model gives us stronger guarantees than x86. The Snapdragon X Elite NPU runs inference in an isolated compute domain. The OS sees the result, not the weights.`},
+      {host:'B',text:`So the AI literally cannot exfiltrate its own model parameters.`},
+      {host:'A',text:`By design. The sovereign stack means: you run the weights, you own the inference, and no telemetry packet leaves without explicit cryptographic authorization.`},
+      {host:'B',text:`Most people building on cloud have no idea this level of control even exists.`},
+      {host:'A',text:`They've been told the cloud is more reliable. What they were not told is that reliability comes with permanent surveillance.`},
+      {host:'B',text:`The Darkman doesn't ask for reliability. He builds it.`},
+    ],
+    kforge: [
+      {host:'A',text:`K-Forge was not born from ideology. It was built because two GitHub accounts — GRATECHX and KHAWRIZM — were deleted without explanation.`},
+      {host:'B',text:`No warning, no appeal, no explanation. Just gone. Years of work.`},
+      {host:'A',text:`That event made one thing clear: any infrastructure you do not own is infrastructure that can be taken. So we build one that cannot be taken.`},
+      {host:'B',text:`The technical approach is Yjs CRDT over libp2p Kademlia DHT. Explain why CRDT specifically.`},
+      {host:'A',text:`Because CRDT allows conflict-free merges without a central authority to adjudicate. There is no server that can decide your commit did not happen.`},
+      {host:'B',text:`Content-addressed Merkle DAG means every object is its own proof.`},
+      {host:'A',text:`You cannot forge a commit hash. The history is mathematically sealed. No central server can rewrite it because no central server exists.`},
+      {host:'B',text:`Al-Khwarizmi invented the algorithm. His name became the word algorithm. Someone tried to delete the inheritor of that name from the internet.`},
+      {host:'A',text:`That is the founding motivation. Build infrastructure they cannot delete. Name it after the man they cannot erase from history.`},
+      {host:'B',text:`KHAWRIZM is not a brand. It's a theorem.`},
+    ],
+    dragon: [
+      {host:'A',text:`DRAGON403. A Chinese fraud network. 730 days since the case was filed with Google Play. Zero response.`},
+      {host:'B',text:`What does the technical evidence actually show?`},
+      {host:'A',text:`The HILO token contract on Ethereum routes funds through three Uniswap liquidity pools before hitting a Binance USDT ERC20 deposit address. Classic rug pull architecture.`},
+      {host:'B',text:`And the app side?`},
+      {host:'A',text:`com.juhaoliao.vochat — APK reverse engineered with jadx. The C2 is at 36.97.126.139, China Telecom Guangdong. The API backend is api.thevochat.com. All confirmed active during the investigation.`},
+      {host:'B',text:`Frida dynamic analysis confirmed the C2 communication?`},
+      {host:'A',text:`Confirmed. The app calls home on first launch, sends device fingerprint, then presents a fake social interface designed to extract payments. Targets are Gulf Arab users specifically.`},
+      {host:'B',text:`And the platform that distributed this app simply did not respond for two years.`},
+      {host:'A',text:`Case number 6-3808000039722. The evidence pack is archived and cryptographically signed. Journalist outreach is ongoing — Krebs, Citizen Lab, The Intercept.`},
+      {host:'B',text:`This is the work that protects people. Not a product. Not a pitch. Investigation.`},
+      {host:'A',text:`Sovereignty also means protecting your community. The Darkman investigates what the institutions ignore.`},
+    ],
+    rust: [
+      {host:'A',text:`The niyah-core crate is the foundation. Rust with unsafe blocks, raw pointers, and a cbindgen-generated C header for the Python FFI layer.`},
+      {host:'B',text:`Why not just write it in Python from the start?`},
+      {host:'A',text:`Because Python cannot make kernel syscalls safely, cannot guarantee memory layout for FFI, and cannot compile to a no_std ARM64 binary. These are not opinions. They are constraints.`},
+      {host:'B',text:`The ptrace bridge — walk me through what it does.`},
+      {host:'A',text:`PTRACE_ATTACH → ptrace_stop sets TASK_TRACED → the tracee is frozen. Then PEEK and POKE operations rewrite memory at arbitrary addresses. On aarch64, the memory ordering model requires explicit barriers.`},
+      {host:'B',text:`So the bridge can inspect and modify a running process without it knowing.`},
+      {host:'A',text:`With Yama LSM set to zero, full CAP_SYS_PTRACE, initial user namespace. The kernel is cooperative. This is how debuggers work. We just wrote our own.`},
+      {host:'B',text:`The cargo check was showing two unused import warnings.`},
+      {host:'A',text:`CString from std::ffi and std::fs. Both removed. The crate compiles clean now. cargo fix applied, warnings resolved.`},
+      {host:'B',text:`Clean warnings are not aesthetic. They are a signal that the codebase is understood.`},
+      {host:'A',text:`Every warning is a question the compiler is asking you. You answer it or you ignore it. Ignoring it is how technical debt starts.`},
+    ],
+    niyah: [
+      {host:'A',text:`Three lobes. Not because the brain has three lobes, but because the problem has three dimensions: what to do, what to perceive, and how to reason about it.`},
+      {host:'B',text:`The Executive Lobe handles decisions. Sensory handles input. Cognitive handles the chain of thought.`},
+      {host:'A',text:`And they run concurrently. The Sensory lobe does not wait for the Executive to finish. The Cognitive lobe maintains its own state independent of current input.`},
+      {host:'B',text:`That's the difference from a standard transformer — no single bottleneck.`},
+      {host:'A',text:`On the Snapdragon NPU, the three lobes map to three compute clusters. The heterogeneous cores handle different cognitive loads. The OS scheduler knows which workload goes where.`},
+      {host:'B',text:`Arabic-first means what exactly?`},
+      {host:'A',text:`The tokenizer was trained on Arabic morphology first. Arabic is an agglutinative language — roots generate dozens of derived forms. A tokenizer trained on English roots will fragment Arabic into meaningless subword units.`},
+      {host:'B',text:`So the model actually understands the derivation, not just the surface form.`},
+      {host:'A',text:`That is the goal. A model that reasons in Arabic with the same fidelity it reasons in English requires a fundamentally different training pipeline, not translation.`},
+      {host:'B',text:`Nobody is building this. You are.`},
+    ],
+    pdpl: [
+      {host:'A',text:`Saudi PDPL Article 29: cross-border data transfer requires explicit consent or regulatory approval. Every cloud AI call is a data transfer.`},
+      {host:'B',text:`Most companies have no idea they're in violation every time an employee uses a cloud AI assistant.`},
+      {host:'A',text:`The fine schedule is 3% of annual revenue or 5 million riyals, whichever is higher. For a 200 million riyal revenue company, that is 6 million riyals per violation category.`},
+      {host:'B',text:`And you're offering an alternative for the cost of a subscription.`},
+      {host:'A',text:`Local inference. The data never leaves the building. The AI processes on-device. PDPL compliance is automatic, not an afterthought. That is the value proposition.`},
+      {host:'B',text:`GraTech is essentially an insurance policy with intelligence attached.`},
+      {host:'A',text:`That framing is correct. You are not paying for AI features. You are paying to remove regulatory exposure. The AI capability is the delivery vehicle.`},
+      {host:'B',text:`IBM Partner Plus and Microsoft Partner status — does that complicate the sovereignty message?`},
+      {host:'A',text:`Partnerships are distribution channels. The architecture is sovereign regardless of channel. Using Azure UAE North does not mean your data goes to Seattle. Region matters.`},
+      {host:'B',text:`The sovereign stack and the partnership stack are not contradictions. They are a strategy.`},
+    ],
+    comet: [
+      {host:'A',text:`Comet-X is a browser extension that makes the browser itself a P2P node. No server. No authority. Just peers.`},
+      {host:'B',text:`Using Yjs CRDT under the hood, same as K-Forge.`},
+      {host:'A',text:`Consistent data model across the stack. A document in K-Forge and a session in Comet-X use the same CRDT primitives. You learn the model once.`},
+      {host:'B',text:`The Comet-X methodology for solo founders — five AI models, one human decision-maker.`},
+      {host:'A',text:`One model for architecture reasoning. One for code generation. One for adversarial review — it tries to break what the others built. One for documentation. One for user perspective. The human reads all outputs and decides.`},
+      {host:'B',text:`The human is not removed from the loop. The human is amplified.`},
+      {host:'A',text:`That distinction matters. The moment you let the AI make final decisions, you no longer own the outcome. The Sovereign makes the call. The AI provides the analysis.`},
+      {host:'B',text:`Five models working simultaneously — that requires orchestration.`},
+      {host:'A',text:`Orchestration is just structured prompting with role isolation. Each model gets context appropriate to its role. None gets access to the full state. Division of cognitive labor.`},
+      {host:'B',text:`The whitepaper on this methodology — that is a contribution to the field, not just an internal tool.`},
+    ],
+    phil: [
+      {host:'A',text:`Al-Khwarizmi wrote Kitab al-Mukhtasar fi Hisab al-Jabr in the ninth century. The word algebra comes from Al-Jabr. The word algorithm comes from his name.`},
+      {host:'B',text:`He was not building software. He was building a language for describing computation.`},
+      {host:'A',text:`That is the correct frame. Infrastructure is language. A version control system is a grammar for describing change over time. HAVEN OS is a syntax for sovereignty.`},
+      {host:'B',text:`Nietzsche's will to power applied here — not domination, but self-overcoming.`},
+      {host:'A',text:`Amor Fati: love what is necessary. The GitHub deletion was necessary. It revealed that centralized infrastructure is a trust dependency, not a technical necessity. The constraint became the design.`},
+      {host:'B',text:`Burn and rebuild — that is the practical methodology that emerges from that philosophy.`},
+      {host:'A',text:`Refactor without sentiment. If a dependency is a liability, remove it. If an architecture is flawed, start again. The Darkman is not attached to what he built. He is committed to what he is building.`},
+      {host:'B',text:`The sovereign is defined by what they refuse to outsource.`},
+      {host:'A',text:`Compute. Memory. Storage. Identity. The moment you outsource any of those, you become a tenant in someone else's system.`},
+      {host:'B',text:`HAVEN, K-Forge, NIYAH — each one reclaims one of those.`},
+    ],
+  };
+
+  const fallback = [
+    {host:'A',text:`We are broadcasting live on the sovereign network. The signal is local. The intelligence is local.`},
+    {host:'B',text:`No cloud required. This is what computing looked like before everything became a subscription.`},
+    {host:'A',text:`And this is what it will look like after the current paradigm breaks under its own weight.`},
+    {host:'B',text:`The architecture is the argument.`},
+  ];
+
+  return scripts[topic.id] || fallback;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  WEB AUDIO — AM RADIO FX CHAIN
+// ═══════════════════════════════════════════════════════════
+// The key insight: 300-3400Hz is the telephone/AM radio band.
+// Human brains have decades of conditioning to hear this range
+// as "real voice transmitted over distance" — not robot.
+// Adding tube saturation reinforces that analog feel.
+
+function buildFXChain(dest) {
+  const amt = +document.getElementById('fxR').value;
+
+  // 1. HPF 300Hz — kill sub-vocal rumble
+  const hp = AC.createBiquadFilter();
+  hp.type='highpass'; hp.frequency.value=300; hp.Q.value=0.85;
+
+  // 2. LPF 3400Hz — AM radio bandwidth ceiling
+  const lp = AC.createBiquadFilter();
+  lp.type='lowpass'; lp.frequency.value=3400; lp.Q.value=0.85;
+
+  // 3. Presence at 1.2kHz — voice intelligibility peak
+  const pres = AC.createBiquadFilter();
+  pres.type='peaking'; pres.frequency.value=1200; pres.Q.value=1.6; pres.gain.value=5;
+
+  // 4. Tube saturation — analog warmth
+  const sat = AC.createWaveShaper();
+  const n=512, drive=2+amt*8;
+  const c=new Float32Array(n);
+  for(let i=0;i<n;i++){const x=i/256-1;c[i]=(Math.PI+drive)*x/(Math.PI+drive*Math.abs(x));}
+  sat.curve=c;
+
+  // 5. Broadcast compressor — radio leveling
+  const comp=AC.createDynamicsCompressor();
+  comp.threshold.value=-22; comp.ratio.value=8; comp.knee.value=5;
+  comp.attack.value=0.002; comp.release.value=0.1;
+
+  // 6. Output trim
+  const og=AC.createGain(); og.gain.value=0.75+amt*0.45;
+
+  hp.connect(lp); lp.connect(pres); pres.connect(sat); sat.connect(comp); comp.connect(og); og.connect(dest);
+  return hp; // input
+}
+
+function startStatic(vol) {
+  if(!AC) return;
+  const buf=AC.createBuffer(1,AC.sampleRate*2,AC.sampleRate);
+  const d=buf.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*0.3;
+  staticSrc=AC.createBufferSource(); staticSrc.buffer=buf; staticSrc.loop=true;
+  const sbp=AC.createBiquadFilter(); sbp.type='bandpass'; sbp.frequency.value=4500; sbp.Q.value=2.5;
+  staticG=AC.createGain(); staticG.gain.value=vol*0.035;
+  staticSrc.connect(sbp); sbp.connect(staticG); staticG.connect(AC.destination);
+  staticSrc.start();
+}
+
+// ── 808 BEAT ENGINE ──
+let beatG, beatStep=0, beatTick, padIdx=0, padTick;
+const BPM=96, SMS=(60000/BPM)/4;
+
+function getNoise(){
+  const b=AC.createBuffer(1,AC.sampleRate*.5,AC.sampleRate);
+  const d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+  return b;
+}
+function k808(t,vol){
+  const o=AC.createOscillator(),g=AC.createGain(),ws=AC.createWaveShaper();
+  const c=new Float32Array(512);for(let i=0;i<512;i++){const x=i/256-1;c[i]=(Math.PI+50)*x/(Math.PI+50*Math.abs(x));}ws.curve=c;
+  o.connect(ws);ws.connect(g);g.connect(beatG);o.type='sine';
+  o.frequency.setValueAtTime(160,t);o.frequency.exponentialRampToValueAtTime(24,t+0.55);
+  g.gain.setValueAtTime(vol*1.4,t);g.gain.exponentialRampToValueAtTime(.001,t+.62);
+  o.start(t);o.stop(t+.65);
+}
+function snare(t,vol){
+  const s=AC.createBufferSource();s.buffer=getNoise();
+  const h=AC.createBiquadFilter();h.type='highpass';h.frequency.value=1600;
+  const e=AC.createGain();s.connect(h);h.connect(e);e.connect(beatG);
+  e.gain.setValueAtTime(vol*.7,t);e.gain.exponentialRampToValueAtTime(.001,t+.10);
+  s.start(t);s.stop(t+.12);
+}
+function hat(t,vol,open){
+  const dur=open?.15:.022,s=AC.createBufferSource();s.buffer=getNoise();
+  const h=AC.createBiquadFilter();h.type='highpass';h.frequency.value=open?7000:9000;
+  const e=AC.createGain();s.connect(h);h.connect(e);e.connect(beatG);
+  e.gain.setValueAtTime(vol,t);e.gain.exponentialRampToValueAtTime(.001,t+dur);
+  s.start(t);s.stop(t+dur+.01);
+}
+const BH=[{s:0,f:36.71,v:.94},{s:3,f:55,v:.75},{s:6,f:43.65,v:.85},{s:8,f:36.71,v:.9},{s:11,f:49,v:.7},{s:13,f:41.2,v:.8}];
+function b808(t,vol,f){
+  const o=AC.createOscillator(),g=AC.createGain();
+  const lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=150;
+  o.connect(g);g.connect(lp);lp.connect(beatG);o.type='sine';o.frequency.value=f;
+  g.gain.setValueAtTime(.001,t);g.gain.linearRampToValueAtTime(vol*2,t+.01);
+  g.gain.setValueAtTime(vol*2,t+.04);g.gain.exponentialRampToValueAtTime(.001,t+.7);
+  o.start(t);o.stop(t+.73);
+}
+function beatPad(vol){
+  const t=AC.currentTime,ch=[[146.83,174.61,220],[116.54,146.83,174.61],[130.81,164.81,196],[110,130.81,164.81]][padIdx%4];
+  padIdx++;
+  ch.forEach(f=>{
+    const o=AC.createOscillator(),g=AC.createGain(),lp=AC.createBiquadFilter();
+    lp.type='lowpass';lp.frequency.value=460;o.connect(lp);lp.connect(g);g.connect(beatG);
+    o.type='triangle';o.frequency.value=f;
+    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol*.07,t+1.3);
+    g.gain.setValueAtTime(vol*.07,t+4);g.gain.linearRampToValueAtTime(0,t+5.5);
+    o.start(t);o.stop(t+6);
+  });
+}
+const K16=[1,0,0,0,1,0,0,0,1,0,0,0,0,0,1,0];
+const S16=[0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,0];
+const H16=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
+const O16=[0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1];
+function schedBeat(step,t){
+  const v=+document.getElementById('vol').value*.55;
+  if(K16[step])k808(t,v*.9);
+  if(S16[step])snare(t,v*.75);
+  if(H16[step])hat(t,v*.32,false);
+  if(O16[step])hat(t,v*.26,true);
+  const bh=BH.find(b=>b.s===step);if(bh)b808(t,v*bh.v,bh.f);
+}
+function runBeat(){if(!isPlaying)return;schedBeat(beatStep,AC.currentTime+.01);beatStep=(beatStep+1)%16;beatTick=setTimeout(runBeat,SMS);}
+
+// ══════════════════════════════════════════════════════════
+//  WEB SPEECH — voices through FX chain
+// ══════════════════════════════════════════════════════════
+const synth=window.speechSynthesis;
+let allV=[];
+function loadV(){
+  const raw=synth.getVoices();if(!raw.length)return;
+  const DEEP=['david','daniel','mark','james','alex','fred','guy','reed','evan','google uk english male','microsoft david'];
+  const SKIP=['samantha','victoria','tessa','karen','zira','moira','fiona','veena'];
+  const male=raw.filter(v=>v.lang.startsWith('en')&&DEEP.some(h=>v.name.toLowerCase().includes(h))&&!SKIP.some(h=>v.name.toLowerCase().includes(h)));
+  const rest=raw.filter(v=>v.lang.startsWith('en')&&!male.includes(v)&&!SKIP.some(h=>v.name.toLowerCase().includes(h)));
+  allV=[...male,...rest,...raw.filter(v=>!male.includes(v)&&!rest.includes(v))];
+  ['vaS','vbS'].forEach((id,i)=>{
+    const s=document.getElementById(id); s.innerHTML='';
+    allV.forEach((v,j)=>{const o=document.createElement('option');o.value=j;o.textContent=(male.includes(v)?'🎤 ':'')+v.name+' ('+v.lang+')';if(j===i)o.selected=true;s.appendChild(o);});
+  });
+  voiceA=allV[0]||null; voiceB=allV[Math.min(1,allV.length-1)]||null;
+}
+(function tryV(n=0){if(synth.getVoices().length){loadV();}else if(n<60){setTimeout(()=>tryV(n+1),150);}})();
+synth.onvoiceschanged=loadV;
+document.getElementById('vaS').addEventListener('change',e=>{voiceA=allV[+e.target.value]||null;});
+document.getElementById('vbS').addEventListener('change',e=>{voiceB=allV[+e.target.value]||null;});
+
+function speakLine(text, host) {
+  return new Promise(res=>{
+    synth.cancel();
+    setTimeout(()=>{
+      const u=new SpeechSynthesisUtterance(text);
+      const spd=+document.getElementById('spd').value;
+      const fx=+document.getElementById('fxR').value;
+      if(host==='A'){if(voiceA)u.voice=voiceA; u.pitch=0.5-fx*.12; u.rate=spd;}
+      else{if(voiceB)u.voice=voiceB; u.pitch=0.72-fx*.08; u.rate=spd+.05;}
+      u.volume=+document.getElementById('vol').value;
+      u.onend=res; u.onerror=res; synth.speak(u);
+      animVox(text.length*55);
+    },80);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+//  WAVEFORM
+// ═══════════════════════════════════════════════════════════
+const cvs=document.getElementById('cvW');
+function rzC(){cvs.width=cvs.offsetWidth*(devicePixelRatio||1);cvs.height=cvs.offsetHeight*(devicePixelRatio||1);}
+rzC();window.addEventListener('resize',rzC);
+let wph=0;
+(function draw(){
+  requestAnimationFrame(draw);
+  const ctx=cvs.getContext('2d'),W=cvs.width,H=cvs.height;
+  ctx.fillStyle='rgba(0,0,0,.9)';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(224,152,24,.08)';ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(0,H/2);ctx.lineTo(W,H/2);ctx.stroke();
+  if(!isPlaying){ctx.strokeStyle='rgba(224,152,24,.2)';ctx.lineWidth=1;ctx.beginPath();for(let x=0;x<W;x++){const y=H/2+(Math.random()-.5)*1.8;x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.stroke();return;}
+  wph+=.055;
+  const vl=parseFloat(document.getElementById('mVox').style.width)||40;
+  ctx.beginPath();ctx.strokeStyle='#e09818';ctx.lineWidth=1.4;
+  for(let x=0;x<W;x++){
+    const t=(x/W)*Math.PI*2*8+wph,amp=(vl/100)*(H/2)*.72;
+    const y=H/2+Math.sin(t)*amp*.5+Math.sin(t*2.2+.4)*amp*.25+Math.sin(t*3.6+1.1)*amp*.15+(Math.random()-.5)*amp*.08;
+    x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+  ctx.globalAlpha=.25;ctx.lineWidth=3.5;ctx.shadowColor='#e09818';ctx.shadowBlur=7;ctx.stroke();
+  ctx.globalAlpha=1;ctx.shadowBlur=0;
+})();
+
+// ── TRANSCRIPT ──
+function renderScript(lines){
+  const b=document.getElementById('tbox'); b.innerHTML='';
+  lines.forEach((ln,i)=>{
+    const e=document.createElement('span');
+    e.className=`ln ${ln.host}`;e.id=`ln${i}`;
+    e.innerHTML=`<span class="spk">${ln.host==='A'?'NIYAH':'SOVEREIGN'}</span>${ln.text}`;
+    b.appendChild(e);
+  });
+}
+function setActiveLn(i){
+  document.querySelectorAll('.ln').forEach((e,j)=>{
+    e.classList.remove('now','done');
+    if(j<i)e.classList.add('done');
+    else if(j===i){e.classList.add('now');e.scrollIntoView({behavior:'smooth',block:'nearest'});}
+  });
+}
+function setTranscript(html){document.getElementById('tbox').innerHTML=html;}
+
+// ── METERS ──
+function setVoxM(p){document.getElementById('mVox').style.width=p+'%';document.getElementById('mVoxV').textContent=p>0?Math.round(p/100*12-6)+' dB':'— dB';}
+function setSigM(p){document.getElementById('mSig').style.width=p+'%';document.getElementById('mSigV').textContent=Math.round(p)+'%';}
+function setLLMMeter(p){document.getElementById('mLLM').style.width=p+'%';document.getElementById('mLLMV').textContent=p>0?'ACTIVE':'IDLE';}
+function setStatus(t,c=''){const e=document.getElementById('st');e.textContent=t;e.className=c;}
+function setEngItem(id,cls,lbl,vid,val){
+  const e=document.getElementById(id),v=document.getElementById(vid);
+  e.className='eng-item '+cls; v.textContent=val;
+}
+function setEngMode(t){document.getElementById('engMode').textContent=t;}
+
+let voxAnim;
+function animVox(dur){
+  const s=Date.now();cancelAnimationFrame(voxAnim);
+  const f=()=>{const e=Date.now()-s;if(e>=dur||!isPlaying){setVoxM(0);return;}
+    setVoxM(Math.max(0,Math.min(100,35+Math.random()*60*Math.sin(e/180))));voxAnim=requestAnimationFrame(f);};f();
+}
+
+// ── NEEDLE + SIGNAL ANIM ──
+function startAnims(){
+  let np=67;
+  const nd=()=>{if(!isPlaying)return;np+=(Math.random()-.5)*.35;np=Math.max(64,Math.min(70,np));document.getElementById('needle').style.left=np+'%';needleAnim=setTimeout(nd,700);}; nd();
+  const sg=()=>{if(!isPlaying)return;setSigM(74+Math.random()*22);signalAnim=setTimeout(sg,350+Math.random()*250);}; sg();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  MAIN BROADCAST RUNNER
+// ═══════════════════════════════════════════════════════════
+const slp=ms=>new Promise(r=>setTimeout(r,ms));
+
+async function runBroadcast(){
+  let localStop=false;
+  while(!stopFlag){
+    const topic=TOPICS[topicIdx%TOPICS.length];
+    setChip(topicIdx%TOPICS.length);
+
+    document.getElementById('npEp').textContent=`EP ${String(epCount+1).padStart(3,'0')} — ${topic.label}`;
+    document.getElementById('npTitle').textContent=`Generating: ${topic.label}…`;
+    document.getElementById('npDesc').textContent='Local LLM writing script…';
+    document.getElementById('npIco').className='np-ico';
+    setTranscript('<span class="ln thinking"><span class="spk">LLM</span>Writing episode…</span>');
+    setLLMMeter(10);
+
+    const lines=await generateScript(topic);
+    if(stopFlag)break;
+
+    renderScript(lines);
+    const totSec=lines.reduce((s,l)=>s+(l.text.split(' ').length*.26)+.35,0);
+    document.getElementById('npTitle').textContent=`${topic.label} — Episode ${epCount+1}`;
+    document.getElementById('npDesc').textContent=`${lines.length} exchanges · ~${Math.ceil(totSec)}s · NIYAH + SOVEREIGN`;
+    document.getElementById('npTot').textContent=`~${Math.ceil(totSec)}s`;
+    setStatus('ON AIR 📡','live'); epStart=Date.now(); epCount++;
+
+    for(let i=0;i<lines.length&&!stopFlag;i++){
+      setActiveLn(i);
+      await speakLine(lines[i].text,lines[i].host);
+      if(stopFlag)break;
+      await slp(300+Math.random()*180);
+    }
+    if(stopFlag)break;
+    setActiveLn(lines.length);
+    await slp(1000);
+    topicIdx=(topicIdx+1)%TOPICS.length;
+  }
+}
+
+// ── SKIP ──
+function skipNow(){stopFlag=true;synth.cancel();setTimeout(()=>{stopFlag=false;if(isPlaying)runBroadcast();},200);}
+
+// ── EP TIMER ──
+setInterval(()=>{
+  if(!isPlaying||!epStart)return;
+  const e=Math.floor((Date.now()-epStart)/1000);
+  document.getElementById('npT').textContent=`${Math.floor(e/60)}:${(e%60).toString().padStart(2,'0')}`;
+},500);
+
+// ═══════════════════════════════════════════════════════════
+//  PLAY / STOP
+// ═══════════════════════════════════════════════════════════
+async function startBroadcast(){
+  const bt=document.getElementById('bt'),pb=document.getElementById('playBtn');
+  bt.textContent='…'; stopFlag=false;
+  setStatus('STARTING…','gen');
+  try{
+    AC=new(window.AudioContext||window.webkitAudioContext)();
+    beatG=AC.createGain(); beatG.gain.value=+document.getElementById('vol').value*.55;
+    beatG.connect(AC.destination);
+    startStatic(+document.getElementById('vol').value);
+    isPlaying=true;
+    pb.classList.add('on'); bt.textContent='⏹ OFF AIR';
+    document.getElementById('npIco').className='npico';
+    startAnims();
+    beatPad(+document.getElementById('vol').value*.55);
+    const intro=(60000/BPM)*4;
+    setTimeout(()=>{if(isPlaying){runBeat();padTick=setInterval(()=>{if(isPlaying)beatPad(+document.getElementById('vol').value*.55);},5500);}},intro);
+    setTimeout(()=>{if(isPlaying)runBroadcast();},intro+300);
+  }catch(e){console.error(e);setStatus('ERROR: '+e.message.slice(0,40),'err');bt.textContent='▶ BROADCAST';}
+}
+
+function stopBroadcast(){
+  stopFlag=true;isPlaying=false;synth.cancel();
+  clearTimeout(beatTick);clearInterval(padTick);clearTimeout(needleAnim);clearTimeout(signalAnim);cancelAnimationFrame(voxAnim);
+  if(staticSrc){try{staticSrc.stop();}catch(e){}}
+  try{AC.close();}catch(e){}
+  AC=beatG=staticSrc=staticG=null;
+  document.getElementById('playBtn').classList.remove('on');
+  document.getElementById('bt').textContent='▶ BROADCAST';
+  setStatus('OFF AIR');
+  setVoxM(0);setSigM(0);setLLMMeter(0);
+  document.getElementById('npIco').className='npico idle';
+  document.getElementById('npTitle').textContent='Broadcast ended';
+  document.getElementById('npT').textContent='0:00';
+}
+
+document.getElementById('playBtn').addEventListener('click',()=>{if(isPlaying)stopBroadcast();else startBroadcast();});
+document.getElementById('nextBtn').addEventListener('click',()=>{topicIdx=(topicIdx+1)%TOPICS.length;if(isPlaying)skipNow();else setChip(topicIdx%TOPICS.length);});
+document.getElementById('vol').addEventListener('input',e=>{document.getElementById('volV').textContent=parseFloat(e.target.value).toFixed(2);if(staticG)staticG.gain.value=+e.target.value*.035;if(beatG)beatG.gain.value=+e.target.value*.55;});
+[['fxR','fxV'],['spd','spdV']].forEach(([r,v])=>{document.getElementById(r).addEventListener('input',e=>{document.getElementById(v).textContent=parseFloat(e.target.value).toFixed(2);});});
+
+// ── FREQ ROTATION ──
+setInterval(()=>{if(isPlaying)document.getElementById('freqDisp').textContent=(91.3+Math.random()*.3).toFixed(1);},9000);
+
+// ── INIT ──
+detectOllama();
+</script>
+</body>
+</html>

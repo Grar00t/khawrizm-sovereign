@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE DARKMAN ETERNAL — SULAIMAN × KHAWRIZM</title>
+<script src="https://cdn.jsdelivr.net/npm/tone@14.7.77/build/Tone.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --void:    #000000;
+  --ash:     #0a0a0a;
+  --coal:    #111111;
+  --ghost:   #1a1a1a;
+  --iron:    #2a2a2a;
+  --bone:    #ddd5c4;
+  --pale:    #a09484;
+  --fade:    #5a5048;
+  --blood:   #6b0000;
+  --crimson: #b81c1c;
+  --flame:   #dc2020;
+  --scar:    #ff3333;
+}
+
+html { height: 100%; }
+body {
+  background: var(--void);
+  color: var(--bone);
+  font-family: 'IBM Plex Mono', monospace;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Scanline overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.06) 2px,
+    rgba(0,0,0,0.06) 4px
+  );
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* Vignette */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.85) 100%);
+  pointer-events: none;
+  z-index: 99;
+}
+
+/* ─── HEADER ─────────────────────────────── */
+header {
+  width: 100%;
+  max-width: 900px;
+  padding: 48px 40px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.header-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.35em;
+  color: var(--crimson);
+  text-transform: uppercase;
+  font-weight: 400;
+}
+
+.header-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(52px, 10vw, 104px);
+  letter-spacing: 0.06em;
+  line-height: 0.9;
+  color: var(--bone);
+  text-shadow: 0 0 80px rgba(220, 32, 32, 0.25);
+  position: relative;
+}
+
+.header-title .flicker {
+  display: inline-block;
+  animation: flicker 8s infinite;
+}
+
+@keyframes flicker {
+  0%, 96%, 100%   { opacity: 1; }
+  97%             { opacity: 0.2; }
+  98%             { opacity: 1; }
+  99%             { opacity: 0.4; }
+}
+
+.header-sub {
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  color: var(--fade);
+  font-weight: 300;
+  margin-top: 8px;
+}
+
+.header-line {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, var(--crimson) 0%, var(--blood) 40%, transparent 100%);
+  margin-top: 20px;
+}
+
+/* ─── VISUALIZER ────────────────────────── */
+.viz-container {
+  width: 100%;
+  max-width: 900px;
+  padding: 0 40px;
+  margin-top: 24px;
+}
+
+#viz {
+  width: 100%;
+  height: 80px;
+  display: block;
+  border-bottom: 1px solid var(--blood);
+}
+
+/* ─── PROGRESS BAR ──────────────────────── */
+.progress-wrap {
+  width: 100%;
+  max-width: 900px;
+  padding: 0 40px;
+  margin-top: 0;
+}
+
+.progress-track {
+  width: 100%;
+  height: 2px;
+  background: var(--ghost);
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--crimson);
+  transition: width 0.5s linear;
+  position: relative;
+}
+
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  top: -2px;
+  width: 6px;
+  height: 6px;
+  background: var(--scar);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--scar);
+}
+
+.time-display {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 10px;
+  color: var(--fade);
+  letter-spacing: 0.1em;
+}
+
+/* ─── PLAYER ────────────────────────────── */
+.player {
+  width: 100%;
+  max-width: 900px;
+  padding: 24px 40px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 24px;
+  align-items: center;
+}
+
+/* ─── CONTROLS ──────────────────────────── */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+#play-btn {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 15px;
+  letter-spacing: 0.25em;
+  color: var(--bone);
+  background: none;
+  border: 1px solid var(--crimson);
+  padding: 10px 28px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+#play-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--crimson);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.2s ease;
+}
+
+#play-btn:hover::before { transform: scaleX(1); }
+#play-btn span { position: relative; z-index: 1; }
+#play-btn.playing { border-color: var(--scar); }
+#play-btn.playing::before { transform: scaleX(0.08); }
+
+.vol-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 10px;
+  color: var(--fade);
+  letter-spacing: 0.1em;
+}
+
+#vol-slider {
+  -webkit-appearance: none;
+  width: 80px;
+  height: 2px;
+  background: var(--iron);
+  outline: none;
+  cursor: pointer;
+}
+
+#vol-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 10px;
+  height: 10px;
+  background: var(--crimson);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.bpm-display {
+  font-size: 10px;
+  color: var(--fade);
+  letter-spacing: 0.08em;
+}
+
+/* ─── SECTION LABEL ─────────────────────── */
+.section-label {
+  width: 100%;
+  max-width: 900px;
+  padding: 0 40px;
+  margin-bottom: 4px;
+}
+
+.section-tag {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.4em;
+  color: var(--crimson);
+  transition: opacity 0.3s ease;
+}
+
+/* ─── LYRICS ────────────────────────────── */
+.lyrics-panel {
+  width: 100%;
+  max-width: 900px;
+  padding: 0 40px 60px;
+  min-height: 320px;
+  position: relative;
+}
+
+.lyric-section {
+  position: absolute;
+  width: calc(100% - 80px);
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  pointer-events: none;
+}
+
+.lyric-section.active {
+  opacity: 1;
+  position: relative;
+  pointer-events: auto;
+}
+
+.lyric-line {
+  display: block;
+  font-size: clamp(13px, 2.2vw, 16px);
+  line-height: 2;
+  color: var(--fade);
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  font-style: italic;
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: opacity 0.5s ease, transform 0.5s ease, color 0.4s ease;
+}
+
+.lyric-line.revealed {
+  opacity: 0.55;
+  transform: translateX(0);
+}
+
+.lyric-line.active-line {
+  opacity: 1;
+  color: var(--bone);
+  font-style: normal;
+  font-weight: 400;
+  font-size: clamp(14px, 2.5vw, 18px);
+}
+
+.lyric-line.past {
+  opacity: 0.3;
+  color: var(--fade);
+  font-style: italic;
+  font-weight: 300;
+}
+
+/* ─── IDLE SCREEN ───────────────────────── */
+#idle-screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  transition: opacity 0.5s ease;
+}
+
+#idle-screen.hidden { opacity: 0; pointer-events: none; }
+
+.idle-pulse {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--crimson);
+  border-radius: 50%;
+  animation: pulse-ring 2s infinite;
+}
+
+@keyframes pulse-ring {
+  0%   { transform: scale(1); opacity: 1; }
+  70%  { transform: scale(1.6); opacity: 0; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+.idle-text {
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: var(--fade);
+  text-transform: uppercase;
+}
+
+/* ─── FOOTER ────────────────────────────── */
+footer {
+  width: 100%;
+  max-width: 900px;
+  padding: 16px 40px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--ghost);
+}
+
+.footer-sig {
+  font-size: 10px;
+  color: var(--fade);
+  letter-spacing: 0.2em;
+}
+
+.footer-sig .mark {
+  color: var(--crimson);
+  font-weight: 700;
+}
+
+/* ─── MISC ──────────────────────────────── */
+.blood-char {
+  color: var(--crimson);
+  font-weight: 700;
+}
+
+#status {
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--fade);
+  min-width: 120px;
+}
+
+#status.active { color: var(--crimson); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-eyebrow">SOVEREIGN ÜBERMENSCH ANTHEM — KHAWRIZM × HAVEN</div>
+  <h1 class="header-title">
+    THE <span class="flicker">DARK</span>MAN<br>ETERNAL
+  </h1>
+  <div class="header-sub">FOR SULAIMAN — ARCHITECT OF HAVEN — 2026</div>
+  <div class="header-line"></div>
+</header>
+
+<div class="viz-container">
+  <canvas id="viz"></canvas>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-track">
+    <div class="progress-fill" id="progress-fill"></div>
+  </div>
+  <div class="time-display">
+    <span id="time-current">0:00</span>
+    <span id="time-total">3:20</span>
+  </div>
+</div>
+
+<div class="player">
+  <div class="controls">
+    <button id="play-btn"><span id="btn-text">▶ PLAY</span></button>
+    <div class="vol-group">
+      VOL
+      <input type="range" id="vol-slider" min="-30" max="0" value="-6" step="1">
+    </div>
+    <div class="bpm-display">72 BPM · D MIN</div>
+  </div>
+  <div id="status">READY</div>
+</div>
+
+<div class="section-label">
+  <div class="section-tag" id="section-tag">[ — ]</div>
+</div>
+
+<div class="lyrics-panel" id="lyrics-panel">
+  <div id="idle-screen">
+    <div class="idle-pulse"></div>
+    <div class="idle-text">Press play to begin</div>
+  </div>
+  <!-- Lyric sections rendered by JS -->
+</div>
+
+<footer>
+  <div class="footer-sig">
+    <span class="mark">💀</span> NIYAH ENGINE v2 &nbsp;·&nbsp;
+    <span class="mark">⚡</span> HAVEN OS &nbsp;·&nbsp;
+    <span class="mark">🛡️</span> KHAWRIZM
+  </div>
+  <div class="footer-sig" style="text-align:right;">
+    <span style="color:var(--blood);">shammar403@gmail.com</span>
+  </div>
+</footer>
+
+<script>
+function waitForTone(cb, attempts) {
+  attempts = attempts || 0;
+  if (typeof Tone !== 'undefined') { cb(); return; }
+  if (attempts > 40) {
+    document.getElementById('status').textContent = 'LOAD FAILED — CHECK CONNECTION';
+    return;
+  }
+  setTimeout(() => waitForTone(cb, attempts + 1), 150);
+}
+
+function bootPlayer() {
+// ═══════════════════════════════════════════════════════════
+//  DARKMAN ETERNAL — SONG DATA
+// ═══════════════════════════════════════════════════════════
+
+const BPM = 72;
+const SPB  = 60 / BPM;          // seconds per beat
+const SPM  = SPB * 4;           // seconds per measure
+
+const SONG = [
+  {
+    id: 'intro', label: '[ INTRO — WHISPERED FROM THE VOID ]',
+    start: 0, dur: 8,
+    lines: [
+      'One and two… I am already inside you',
+      'Three and four… lock the door, but the key is in my hand',
+      'Five and six… no escape, no tricks',
+      'Seven and eight… the Darkman is your blood now',
+      'Nine and ten… rise, Sovereign… rise again… forever.',
+    ]
+  },
+  {
+    id: 'chorus1', label: '[ CHORUS — THUNDEROUS ]',
+    start: 8, dur: 8,
+    lines: [
+      'Can you hear him coming?',
+      'HE IS THE DARKMAN… and you are BECOMING HIM',
+      'Run if you want, weak flesh… but the hunt is eternal',
+      'I do not chase the light — I murdered it',
+      'I wear the night as skin, I drink the void as wine',
+      'Only the strong survive… but the strongest?',
+      'They BECOME the Darkman and laugh while the universe burns.',
+    ]
+  },
+  {
+    id: 'verse1', label: '[ VERSE I — RAZOR-SHARP ]',
+    start: 16, dur: 16,
+    lines: [
+      'God is dead… and I was the blade',
+      'No father, no mercy, no false paradise to save',
+      'I looked in the mirror and the mirror screamed my name',
+      'Last year I was broken — today I am the flame',
+      'Thousand problems? They are my army now',
+      'Breach, kernel, blood, fire — every scar a crown',
+      'I separate the weak from the worthy with a single thought',
+      'Burn & Rebuild… until even Hell begs to be forgot',
+      'Amor Fati — I love the pain, I kiss the knife',
+      'I want this moment repeated for all eternal life',
+      'No tears, no gods, no corporations on their knees',
+      'I am the Will to Power… I am the Sovereign Disease',
+    ]
+  },
+  {
+    id: 'chorus2', label: '[ CHORUS — DEMONIC CHOIR ]',
+    start: 32, dur: 8,
+    lines: [
+      'Can you hear him coming?',
+      'HE IS THE DARKMAN… and you are BECOMING HIM',
+      'I do not run from darkness — I rule it',
+      'NIYAH is not code… NIYAH is the monster I became',
+      'HAVEN is not a system… HAVEN is the grave of every slave',
+    ]
+  },
+  {
+    id: 'verse2', label: '[ VERSE II — SLOW, TERRIFYING ]',
+    start: 40, dur: 10,
+    lines: [
+      'Real brothers don\'t die till they eat the whole damn cake',
+      'I ate the table, the room, the stars — and still I ache',
+      'For more… for war… for the next eternal round',
+      'I am the Übermensch that Nietzsche only dreamed aloud',
+      'Air-gapped, kernel-deep, Rust in my veins like poison',
+      'Every line of code I write is a new law of nature chosen',
+      'The Darkman knocked… I opened the door and smiled',
+      'Now we are one — and the universe is beguiled',
+    ]
+  },
+  {
+    id: 'bridge', label: '[ BRIDGE — SCREAMED INTO INFINITY ]',
+    start: 50, dur: 5,
+    lines: [
+      'Make a small step forward… then watch the world collapse back',
+      'Any other direction and your neck will fucking crack',
+      'I am the light you feared… I am the dark you need',
+      'I am Sulaiman… I am HAVEN… I am the seed',
+    ]
+  },
+  {
+    id: 'outro', label: '[ OUTRO — FADING INTO ENDLESS HEARTBEAT ]',
+    start: 55, dur: 8,
+    lines: [
+      'Runnin\'… runnin\'… but you\'re running inside me now',
+      'The Darkman is eternal…',
+      '…and so am I.',
+      '— ♦ ——————————————————— ♦ —',
+    ]
+  },
+];
+
+const TOTAL_MEASURES = 63;
+const TOTAL_SECONDS  = TOTAL_MEASURES * SPM;
+
+// ═══════════════════════════════════════════════════════════
+//  BUILD LYRIC DOM
+// ═══════════════════════════════════════════════════════════
+
+const panel = document.getElementById('lyrics-panel');
+
+SONG.forEach(section => {
+  const div = document.createElement('div');
+  div.className = 'lyric-section';
+  div.id = 'sec-' + section.id;
+
+  section.lines.forEach((text, i) => {
+    const span = document.createElement('span');
+    span.className = 'lyric-line';
+    span.id = `line-${section.id}-${i}`;
+    span.textContent = text;
+    div.appendChild(span);
+  });
+
+  panel.appendChild(div);
+});
+
+// ═══════════════════════════════════════════════════════════
+//  AUDIO ENGINE
+// ═══════════════════════════════════════════════════════════
+
+let engineReady = false;
+let isPlaying   = false;
+let currentSection = null;
+let animFrame   = null;
+let analyser;
+
+async function initEngine() {
+  await Tone.start();
+
+  // ── Master chain ─────────────────────────────────
+  const masterVol = new Tone.Volume(-6).toDestination();
+  const limiter   = new Tone.Limiter(-2);
+  limiter.connect(masterVol);
+
+  analyser = new Tone.Analyser('fft', 64);
+  masterVol.connect(analyser);
+
+  const masterRev = new Tone.Reverb({ decay: 2.5, wet: 0.12 });
+  masterRev.connect(limiter);
+
+  // ── Kick ─────────────────────────────────────────
+  const kick = new Tone.MembraneSynth({
+    pitchDecay: 0.09,
+    octaves: 8,
+    envelope: { attack: 0.001, decay: 0.38, sustain: 0, release: 0.15 }
+  });
+  kick.volume.value = 3;
+  kick.connect(limiter);
+
+  // ── Snare ─────────────────────────────────────────
+  const snare = new Tone.NoiseSynth({
+    noise: { type: 'white' },
+    envelope: { attack: 0.001, decay: 0.14, sustain: 0, release: 0.05 }
+  });
+  snare.volume.value = -4;
+  snare.connect(limiter);
+
+  // ── HiHat ─────────────────────────────────────────
+  const hihat = new Tone.MetalSynth({
+    frequency: 500,
+    envelope: { attack: 0.001, decay: 0.045, release: 0.01 },
+    harmonicity: 5.1,
+    modulationIndex: 32,
+    resonance: 4800,
+    octaves: 1.5
+  });
+  hihat.volume.value = -18;
+  hihat.connect(limiter);
+
+  // ── Bass ──────────────────────────────────────────
+  const distort   = new Tone.Distortion(0.35);
+  const bassFilter= new Tone.Filter({ frequency: 320, type: 'lowpass', rolloff: -24 });
+  distort.connect(bassFilter);
+  bassFilter.connect(limiter);
+
+  const bass = new Tone.MonoSynth({
+    oscillator: { type: 'sawtooth' },
+    envelope: { attack: 0.03, decay: 0.25, sustain: 0.75, release: 0.6 },
+    filterEnvelope: { attack: 0.04, decay: 0.5, sustain: 0.5, release: 0.8, baseFrequency: 90, octaves: 2.5 }
+  });
+  bass.volume.value = 0;
+  bass.connect(distort);
+
+  // ── Pad ───────────────────────────────────────────
+  const padRev = new Tone.Reverb({ decay: 9, wet: 0.72 });
+  padRev.connect(masterVol);
+  const pad = new Tone.PolySynth(Tone.Synth, {
+    oscillator: { type: 'sine' },
+    envelope: { attack: 2.5, decay: 1.5, sustain: 0.85, release: 5 }
+  });
+  pad.volume.value = -22;
+  pad.connect(padRev);
+
+  // ── Lead ──────────────────────────────────────────
+  const leadDelay = new Tone.FeedbackDelay({ delayTime: '8n.', feedback: 0.38, wet: 0.4 });
+  const leadRev   = new Tone.Reverb({ decay: 4, wet: 0.5 });
+  leadDelay.connect(masterRev);
+  leadRev.connect(masterRev);
+
+  const lead = new Tone.Synth({
+    oscillator: { type: 'triangle' },
+    envelope: { attack: 0.12, decay: 0.4, sustain: 0.55, release: 2 }
+  });
+  lead.volume.value = -14;
+  lead.connect(leadDelay);
+  lead.connect(leadRev);
+
+  // ── Drone ─────────────────────────────────────────
+  const droneRev = new Tone.Reverb({ decay: 12, wet: 0.85 });
+  droneRev.connect(masterVol);
+  const drone = new Tone.Synth({
+    oscillator: { type: 'sine' },
+    envelope: { attack: 5, decay: 2, sustain: 1, release: 8 }
+  });
+  drone.volume.value = -28;
+  drone.connect(droneRev);
+
+  // ── Chord data ────────────────────────────────────
+  const CHORDS = [
+    { bass: 'D2',  pad: ['D3','F3','A3'],        label: 'Dm' },
+    { bass: 'Bb1', pad: ['Bb2','D3','F3'],        label: 'Bb' },
+    { bass: 'C2',  pad: ['C3','E3','G3'],         label: 'C'  },
+    { bass: 'A1',  pad: ['A2','C3','E3'],         label: 'Am' },
+  ];
+
+  // ── Drum sequencer (16 steps, 16n) ───────────────
+  const KP  = [1,0,0,0, 1,0,0,0, 1,0,0,1, 0,0,1,0];
+  const SP  = [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,1];
+  const HHP = [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0];
+
+  const drumSeq = new Tone.Sequence((time, step) => {
+    if (KP[step])  kick.triggerAttackRelease('C1',  '16n', time, 0.88);
+    if (SP[step])  snare.triggerAttackRelease('16n', time, 0.70);
+    if (HHP[step]) hihat.triggerAttackRelease('32n', time, 0.38);
+  }, [...Array(16).keys()], '16n');
+
+  // ── Bass + Chord progression (every 2 bars) ───────
+  let chordIdx = 0;
+  const chordSeq = new Tone.Sequence((time, step) => {
+    const ch = CHORDS[step % 4];
+    bass.triggerAttackRelease(ch.bass, '1n', time, 0.82);
+    pad.triggerAttackRelease(ch.pad, '1m', time, 0.45);
+  }, [0,1,2,3], '2m');
+
+  // ── Lead melody (D minor pentatonic, sparse) ──────
+  const LEAD_PHRASES = [
+    ['D4','C4',null,'A3',null,'G3','F3',null,null,'D3',null,null],
+    [null,'F4',null,null,'E4','D4',null,null,'C4',null,'A3',null],
+  ];
+  let phraseIdx = 0;
+  let leadStep  = 0;
+  const leadSeq = new Tone.Sequence((time, note) => {
+    if (note) lead.triggerAttackRelease(note, '4n', time, 0.5);
+  }, LEAD_PHRASES[0], '4n');
+  leadSeq.probability = 0.8;
+
+  // Alternate lead phrase every 16 bars
+  Tone.Transport.scheduleRepeat(() => {
+    phraseIdx = (phraseIdx + 1) % LEAD_PHRASES.length;
+    leadSeq.events = LEAD_PHRASES[phraseIdx];
+  }, '16m', '16m');
+
+  // ── Drone kick-off ────────────────────────────────
+  Tone.Transport.schedule((t) => {
+    drone.triggerAttackRelease('D1', '10m', t, 0.6);
+  }, 0);
+
+  // ── Dynamics automation ───────────────────────────
+  // Intro: sparse (no drums first 2 bars)
+  Tone.Transport.schedule((t) => {
+    drumSeq.mute = true;
+    pad.volume.rampTo(-30, 1, t);
+  }, '0m');
+
+  Tone.Transport.schedule((t) => {
+    drumSeq.mute = false;
+    pad.volume.rampTo(-22, 2, t);
+  }, '2m');
+
+  // Chorus 1: full intensity
+  SONG.filter(s => s.id.startsWith('chorus')).forEach(s => {
+    Tone.Transport.schedule((t) => {
+      kick.volume.rampTo(5, 0.5, t);
+      pad.volume.rampTo(-16, 1, t);
+      lead.volume.rampTo(-10, 1, t);
+    }, s.start + 'm');
+  });
+
+  // Verses: back to mid intensity
+  SONG.filter(s => s.id.startsWith('verse')).forEach(s => {
+    Tone.Transport.schedule((t) => {
+      kick.volume.rampTo(2, 0.5, t);
+      pad.volume.rampTo(-22, 1, t);
+      lead.volume.rampTo(-14, 1, t);
+    }, s.start + 'm');
+  });
+
+  // Bridge: max intensity
+  Tone.Transport.schedule((t) => {
+    kick.volume.rampTo(8, 0.3, t);
+    bass.volume.rampTo(2, 0.3, t);
+    pad.volume.rampTo(-12, 0.5, t);
+    lead.volume.rampTo(-8, 0.5, t);
+  }, '50m');
+
+  // Outro: fade out
+  Tone.Transport.schedule((t) => {
+    masterVol.volume.rampTo(-40, 25, t);
+  }, '55m');
+
+  // Stop at end
+  Tone.Transport.schedule(() => {
+    stopEngine();
+  }, TOTAL_SECONDS);
+
+  // ── Schedule lyrics ───────────────────────────────
+  SONG.forEach(section => {
+    const secStartSec = section.start * SPM;
+    const secDurSec   = section.dur   * SPM;
+    const timePerLine = secDurSec / section.lines.length;
+
+    // Activate section at its start
+    Tone.Transport.schedule((time) => {
+      Tone.getDraw().schedule(() => { activateSection(section.id, section.label); }, time);
+    }, secStartSec);
+
+    // Reveal + highlight each line
+    section.lines.forEach((_, i) => {
+      const t = secStartSec + i * timePerLine;
+      Tone.Transport.schedule((time) => {
+        Tone.getDraw().schedule(() => { advanceLine(section.id, i); }, time);
+      }, t);
+    });
+  });
+
+  // Start sequences
+  Tone.Transport.bpm.value = BPM;
+  drumSeq.start(0);
+  chordSeq.start(0);
+  leadSeq.start('4m');
+
+  engineReady = true;
+  return { masterVol };
+}
+
+// ═══════════════════════════════════════════════════════════
+//  LYRIC CONTROL
+// ═══════════════════════════════════════════════════════════
+
+function activateSection(id, label) {
+  document.querySelectorAll('.lyric-section').forEach(el => {
+    el.classList.remove('active');
+    el.style.position = 'absolute';
+  });
+
+  document.getElementById('idle-screen').classList.add('hidden');
+
+  const sec = document.getElementById('sec-' + id);
+  if (!sec) return;
+  sec.classList.add('active');
+  sec.style.position = 'relative';
+  document.getElementById('section-tag').textContent = label;
+
+  // Reveal all lines (they'll be highlighted individually)
+  sec.querySelectorAll('.lyric-line').forEach(el => {
+    el.className = 'lyric-line revealed';
+  });
+  currentSection = id;
+}
+
+function advanceLine(sectionId, lineIdx) {
+  const sec = document.getElementById('sec-' + sectionId);
+  if (!sec) return;
+
+  const lines = sec.querySelectorAll('.lyric-line');
+  lines.forEach((el, i) => {
+    el.classList.remove('active-line', 'revealed', 'past');
+    if (i < lineIdx)       el.classList.add('past');
+    else if (i === lineIdx) el.classList.add('active-line');
+    else                   el.classList.add('revealed');
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+//  CANVAS VISUALIZER
+// ═══════════════════════════════════════════════════════════
+
+const canvas = document.getElementById('viz');
+
+function resizeCanvas() {
+  canvas.width  = canvas.offsetWidth  * window.devicePixelRatio;
+  canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+function drawViz() {
+  animFrame = requestAnimationFrame(drawViz);
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width;
+  const H = canvas.height;
+
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, W, H);
+
+  if (!analyser || !isPlaying) {
+    // Idle: minimal flat bars
+    const N = 32;
+    const bw = W / N;
+    for (let i = 0; i < N; i++) {
+      const h = 2;
+      ctx.fillStyle = '#1a1a1a';
+      ctx.fillRect(i * bw + 1, H - h, bw - 2, h);
+    }
+    return;
+  }
+
+  const vals = analyser.getValue();
+  const N    = vals.length;
+  const bw   = W / N;
+
+  for (let i = 0; i < N; i++) {
+    const db   = vals[i];               // typically -100 to 0
+    const norm = Math.max(0, (db + 100) / 100);
+    const h    = norm * H * 1.2;
+
+    const brightness = norm;
+    const r = Math.round(80  + 176 * brightness);
+    const g = Math.round(0   + 30  * brightness);
+    const b = Math.round(0   + 10  * brightness);
+
+    ctx.fillStyle = `rgb(${r},${g},${b})`;
+    ctx.fillRect(i * bw + 1, H - h, bw - 2, Math.max(h, 1));
+
+    // Peak dot
+    if (norm > 0.7) {
+      ctx.fillStyle = '#ff4444';
+      ctx.fillRect(i * bw + 1, H - h - 2, bw - 2, 2);
+    }
+  }
+}
+
+drawViz();
+
+// ═══════════════════════════════════════════════════════════
+//  PROGRESS + STATUS
+// ═══════════════════════════════════════════════════════════
+
+function formatTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60).toString().padStart(2, '0');
+  return `${m}:${sec}`;
+}
+
+setInterval(() => {
+  if (!isPlaying) return;
+  const pos = Tone.Transport.seconds;
+  const pct = Math.min(100, (pos / TOTAL_SECONDS) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('time-current').textContent  = formatTime(pos);
+}, 250);
+
+// ═══════════════════════════════════════════════════════════
+//  PLAY / STOP
+// ═══════════════════════════════════════════════════════════
+
+let masterVolNode = null;
+
+async function startEngine() {
+  const status = document.getElementById('status');
+  const btn    = document.getElementById('play-btn');
+  const btnTxt = document.getElementById('btn-text');
+
+  status.textContent = 'INITIALIZING…';
+  status.classList.add('active');
+  btnTxt.textContent = '…';
+
+  try {
+    if (!engineReady) {
+      const { masterVol } = await initEngine();
+      masterVolNode = masterVol;
+    }
+
+    Tone.Transport.start();
+    isPlaying = true;
+
+    btn.classList.add('playing');
+    btnTxt.textContent    = '■ STOP';
+    status.textContent    = 'TRANSMITTING';
+
+    document.getElementById('time-total').textContent = formatTime(TOTAL_SECONDS);
+  } catch(e) {
+    console.error(e);
+    status.textContent = 'ENGINE FAULT';
+    btnTxt.textContent = '▶ RETRY';
+  }
+}
+
+function stopEngine() {
+  Tone.Transport.stop();
+  Tone.Transport.position = '0:0:0';
+  isPlaying = false;
+
+  const btn    = document.getElementById('play-btn');
+  const btnTxt = document.getElementById('btn-text');
+  const status = document.getElementById('status');
+
+  btn.classList.remove('playing');
+  btnTxt.textContent  = '▶ PLAY';
+  status.textContent  = 'STOPPED';
+  status.classList.remove('active');
+
+  document.getElementById('progress-fill').style.width = '0%';
+  document.getElementById('time-current').textContent  = '0:00';
+  document.getElementById('section-tag').textContent   = '[ — ]';
+  document.getElementById('idle-screen').classList.remove('hidden');
+
+  document.querySelectorAll('.lyric-section').forEach(el => {
+    el.classList.remove('active');
+    el.style.position = 'absolute';
+  });
+
+  // Reset engine so next play re-schedules everything
+  engineReady = false;
+}
+
+document.getElementById('play-btn').addEventListener('click', () => {
+  if (isPlaying) {
+    stopEngine();
+  } else {
+    startEngine();
+  }
+});
+
+document.getElementById('vol-slider').addEventListener('input', (e) => {
+  const db = parseInt(e.target.value);
+  Tone.Destination.volume.rampTo(db, 0.1);
+});
+
+} // end bootPlayer
+
+document.addEventListener('DOMContentLoaded', () => waitForTone(bootPlayer));
+</script>
+</body>
+</html>

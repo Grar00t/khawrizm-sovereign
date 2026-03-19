@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DARKMAN ETERNAL — NIYAH VOCAL ENGINE</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@300;400;700&display=swap');
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --void:#000;--coal:#0a0a0a;--iron:#181818;--wire:#282828;
+  --bone:#e8ddd0;--pale:#9a8880;--fade:#4a4038;
+  --red:#c41111;--hot:#ff2020;--spark:#ff5500;
+  --cyan:#00e8ff;--gold:#ffa500;
+}
+html,body{height:100%;background:var(--void)}
+body{
+  color:var(--bone);font-family:'IBM Plex Mono',monospace;
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  overflow-x:hidden;
+}
+/* grain texture */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:300;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  background-size:256px 256px;opacity:0.6;
+}
+/* vignette */
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:299;background:radial-gradient(ellipse at 50% 10%,transparent 35%,rgba(0,0,0,.75) 100%)}
+
+/* ─── HEADER ─── */
+header{width:100%;max-width:940px;padding:36px 32px 0;position:relative;z-index:10}
+.eyebrow{font-size:8.5px;letter-spacing:.45em;color:var(--red);text-transform:uppercase;margin-bottom:4px}
+h1{
+  font-family:'Bebas Neue','Arial Black',sans-serif;
+  font-size:clamp(56px,10.5vw,114px);line-height:.84;letter-spacing:.04em;
+  color:var(--bone);
+  text-shadow:
+    0 0 0 rgba(0,0,0,0),
+    -1px -1px 0 rgba(255,32,32,.15),
+    1px 1px 0 rgba(0,0,255,.08);
+  animation:chromab 6s infinite;
+}
+@keyframes chromab{
+  0%,90%,100%{text-shadow:-1px -1px 0 rgba(255,32,32,.12),1px 1px 0 rgba(0,0,255,.07)}
+  92%{text-shadow:-3px -1px 0 rgba(255,32,32,.35),3px 1px 0 rgba(0,0,255,.25)}
+  94%{text-shadow:-1px -1px 0 rgba(255,32,32,.12),1px 1px 0 rgba(0,0,255,.07)}
+}
+.fk{display:inline-block;animation:fk 9s infinite}
+@keyframes fk{0%,93%,100%{opacity:1}94%{opacity:.04}95.5%{opacity:1}97%{opacity:.25}}
+.hdivider{width:100%;height:1px;background:linear-gradient(90deg,var(--hot),var(--red) 38%,transparent);margin-top:14px}
+
+/* ─── ENGINE STATUS BAR ─── */
+.statusbar{
+  width:100%;max-width:940px;padding:8px 32px;
+  display:flex;align-items:center;gap:12px;
+  background:linear-gradient(90deg,rgba(196,17,17,.08),transparent);
+  border-bottom:1px solid var(--wire);position:relative;z-index:10;
+}
+.sb-item{font-size:8.5px;letter-spacing:.18em;color:var(--fade);white-space:nowrap}
+.sb-item span{color:var(--hot)}
+.sb-item.active span{color:var(--cyan);animation:blink 1.2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.sb-sep{color:var(--wire);font-size:10px}
+
+/* ─── DUAL CANVAS ─── */
+.canvases{width:100%;max-width:940px;padding:0 32px;display:grid;grid-template-columns:2fr 1fr;gap:8px;margin-top:12px;position:relative;z-index:10}
+canvas{display:block;border:1px solid rgba(255,32,32,.15)}
+#cvMain{width:100%;height:80px}
+#cvWave{width:100%;height:80px}
+
+/* ─── BEAT GRID ─── */
+.bgrid{
+  width:100%;max-width:940px;padding:8px 32px 0;
+  display:grid;grid-template-columns:repeat(16,1fr);gap:3px;
+  position:relative;z-index:10;
+}
+.bsq{
+  height:8px;background:var(--wire);
+  transition:background .035s,box-shadow .035s,transform .035s;
+}
+.bsq.beat{background:var(--iron);height:10px;border-top:1px solid #333}
+.bsq.K{background:var(--hot)!important;box-shadow:0 0 14px var(--hot);transform:scaleY(1.5)}
+.bsq.S{background:#ff8c00!important;box-shadow:0 0 10px #ff8c00;transform:scaleY(1.3)}
+.bsq.H{background:#00aadd!important;box-shadow:0 0 6px #00aadd}
+.bsq.O{background:#9900ff!important;box-shadow:0 0 8px #9900ff;transform:scaleY(1.2)}
+.bsq.B{background:var(--gold)!important;box-shadow:0 0 9px var(--gold)}
+
+/* ─── PROGRESS ─── */
+.pw{width:100%;max-width:940px;padding:8px 32px 0;position:relative;z-index:10}
+.pt{width:100%;height:2px;background:var(--iron)}
+.pf{height:100%;width:0%;background:linear-gradient(90deg,var(--red),var(--spark));position:relative;transition:width .3s linear}
+.pf::after{content:'';position:absolute;right:-5px;top:-4px;width:10px;height:10px;background:var(--spark);border-radius:50%;box-shadow:0 0 12px var(--spark)}
+.tr{display:flex;justify-content:space-between;margin-top:4px;font-size:8.5px;color:var(--fade);letter-spacing:.06em}
+
+/* ─── CONTROLS ─── */
+.ctrl{width:100%;max-width:940px;padding:12px 32px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;position:relative;z-index:10}
+#playBtn{
+  font-family:'Bebas Neue','Arial Black',sans-serif;font-size:15px;letter-spacing:.32em;
+  color:var(--bone);background:none;border:1px solid var(--hot);
+  padding:11px 28px;cursor:pointer;position:relative;overflow:hidden;flex-shrink:0;
+}
+#playBtn::before{content:'';position:absolute;inset:0;background:var(--hot);transform:scaleX(0);transform-origin:left;transition:transform .16s}
+#playBtn:hover::before{transform:scaleX(1)}
+#playBtn span{position:relative;z-index:1}
+#playBtn.on::before{transform:scaleX(.04)}
+.sl-g{display:flex;align-items:center;gap:6px}
+.sl-g label{font-size:8.5px;color:var(--fade);letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}
+input[type=range]{-webkit-appearance:none;height:2px;background:var(--iron);outline:none;cursor:pointer;width:58px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;background:var(--hot);border-radius:50%}
+.sv{font-size:8.5px;color:var(--pale);min-width:26px;text-align:right}
+#st{font-size:8.5px;letter-spacing:.14em;color:var(--fade);margin-left:auto}
+#st.live{color:var(--hot)}
+
+/* ─── VOICE ENGINE SELECTOR ─── */
+.vbar{
+  width:100%;max-width:940px;padding:0 32px 10px;
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  border-bottom:1px solid var(--wire);position:relative;z-index:10;
+}
+.vbar label{font-size:8.5px;letter-spacing:.17em;color:var(--fade);text-transform:uppercase;white-space:nowrap}
+.mode-btn{
+  font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.18em;
+  color:var(--fade);background:none;border:1px solid var(--wire);
+  padding:5px 10px;cursor:pointer;text-transform:uppercase;transition:all .12s;
+}
+.mode-btn.active{color:var(--bone);border-color:var(--hot);background:rgba(255,32,32,.08)}
+select#vsel{
+  background:var(--coal);color:var(--bone);border:1px solid var(--wire);
+  font-family:'IBM Plex Mono',monospace;font-size:10px;padding:5px 8px;
+  cursor:pointer;min-width:140px;max-width:220px;outline:none;
+}
+select#vsel:focus{border-color:var(--red)}
+#vs{font-size:8.5px;letter-spacing:.12em;color:var(--fade);margin-left:auto;white-space:nowrap}
+#vs.on{color:var(--cyan)}
+
+/* ─── SECTION TAG ─── */
+.sw{width:100%;max-width:940px;padding:6px 32px 2px;position:relative;z-index:10;display:flex;align-items:center;gap:12px}
+.sl{font-family:'Bebas Neue','Arial Black',sans-serif;font-size:11px;letter-spacing:.42em;color:var(--red)}
+.duck-meter{width:60px;height:3px;background:var(--wire);flex-shrink:0}
+.duck-fill{height:100%;width:0%;background:var(--cyan);transition:width .1s}
+.duck-label{font-size:7.5px;letter-spacing:.15em;color:var(--fade)}
+
+/* ─── LYRICS PANEL ─── */
+.lp{width:100%;max-width:940px;padding:0 32px 52px;min-height:260px;position:relative;z-index:10}
+#idle{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:10px;transition:opacity .35s;
+}
+#idle.gone{opacity:0;pointer-events:none}
+.pr{width:38px;height:38px;border:1px solid var(--red);border-radius:50%;animation:pr 2s infinite}
+@keyframes pr{0%,100%{transform:scale(1);opacity:1}70%{transform:scale(1.7);opacity:0}}
+.it{font-size:8.5px;letter-spacing:.32em;color:var(--fade);text-transform:uppercase}
+.it span{color:var(--hot)}
+
+.ls{position:absolute;width:calc(100% - 64px);opacity:0;pointer-events:none;transition:opacity .4s}
+.ls.active{opacity:1;position:relative;pointer-events:auto}
+
+/* word-level lyrics */
+.lyric-line{
+  display:block;line-height:2;
+  font-size:clamp(13px,1.9vw,16px);
+  color:var(--fade);font-weight:300;font-style:italic;
+  opacity:0;transform:translateY(4px);
+  transition:opacity .35s,transform .35s;
+  white-space:normal;
+}
+.lyric-line.rdy{opacity:.35;transform:translateY(0)}
+.lyric-line.now{
+  opacity:1;font-style:normal;font-weight:400;
+  font-size:clamp(14px,2.2vw,19px);
+}
+.lyric-line.old{opacity:.18;font-style:italic;font-weight:300;transform:translateY(0)}
+
+/* individual word spans inside active line */
+.w{
+  display:inline;color:var(--fade);
+  transition:color .08s,text-shadow .08s;
+}
+.w.said{color:var(--pale)}
+.w.saying{
+  color:#fff;
+  text-shadow:0 0 18px rgba(255,80,0,.7),0 0 40px rgba(255,32,32,.4);
+}
+.w.caps{font-weight:700;letter-spacing:.06em}
+.w.caps.saying{
+  color:var(--hot);
+  text-shadow:0 0 24px rgba(255,32,32,.9),0 0 50px rgba(255,32,32,.5);
+  font-size:1.1em;
+}
+
+/* ─── FOOTER ─── */
+footer{
+  width:100%;max-width:940px;padding:12px 32px 28px;
+  display:flex;justify-content:space-between;border-top:1px solid var(--wire);
+  position:relative;z-index:10;
+}
+.fs{font-size:8.5px;color:var(--fade);letter-spacing:.16em}
+.fs .r{color:var(--red);font-weight:700}
+
+/* ─── FORMANT BADGE ─── */
+.fbadge{
+  position:fixed;bottom:12px;right:14px;z-index:400;
+  font-size:7.5px;letter-spacing:.18em;color:var(--fade);
+  border:1px solid var(--wire);padding:4px 10px;
+  background:rgba(10,10,10,.9);
+}
+.fbadge span{color:var(--hot)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">SOVEREIGN RAP ENGINE · KHAWRIZM × HAVEN · ZERO CDN · NIYAH v2</div>
+  <h1>THE <span class="fk">DARK</span>MAN<br>ETERNAL</h1>
+  <div class="hdivider"></div>
+</header>
+
+<!-- STATUS BAR -->
+<div class="statusbar">
+  <div class="sb-item">BPM: <span>96</span></div>
+  <div class="sb-sep">·</div>
+  <div class="sb-item">KEY: <span>D MIN</span></div>
+  <div class="sb-sep">·</div>
+  <div class="sb-item" id="sb-mode">VOICE: <span>FORMANT</span></div>
+  <div class="sb-sep">·</div>
+  <div class="sb-item active" id="sb-duck">DUCK: <span>OFF</span></div>
+  <div class="sb-sep">·</div>
+  <div class="sb-item">ENGINE: <span>WEB AUDIO API</span></div>
+  <div class="sb-sep">·</div>
+  <div class="sb-item">CDN: <span>NONE</span></div>
+</div>
+
+<!-- DUAL VISUALIZER -->
+<div class="canvases">
+  <canvas id="cvMain"></canvas>
+  <canvas id="cvWave"></canvas>
+</div>
+
+<!-- BEAT GRID -->
+<div class="bgrid" id="bgrid"></div>
+
+<!-- PROGRESS -->
+<div class="pw">
+  <div class="pt"><div class="pf" id="pf"></div></div>
+  <div class="tr"><span id="tc">0:00</span><span id="tt">—</span></div>
+</div>
+
+<!-- CONTROLS -->
+<div class="ctrl">
+  <button id="playBtn"><span id="bt">▶ PLAY</span></button>
+  <div class="sl-g"><label>BEAT VOL</label><input type="range" id="mvol" min="0.0" max="1.0" step="0.05" value="0.78"><span class="sv" id="mvolV">0.78</span></div>
+  <div class="sl-g"><label>VOICE VOL</label><input type="range" id="vvol" min="0.2" max="1.0" step="0.05" value="1.0"><span class="sv" id="vvolV">1.0</span></div>
+  <div class="sl-g"><label>DUCK</label><input type="range" id="duckAmt" min="0.1" max="0.9" step="0.05" value="0.35"><span class="sv" id="duckV">0.35</span></div>
+  <div id="st">READY</div>
+</div>
+
+<!-- VOICE ENGINE CONTROLS -->
+<div class="vbar">
+  <label>ENGINE</label>
+  <button class="mode-btn active" id="btnFormant" onclick="setMode('formant')">FORMANT SYNTH</button>
+  <button class="mode-btn" id="btnSpeech" onclick="setMode('speech')">WEB SPEECH</button>
+  <div class="sl-g"><label>PITCH</label><input type="range" id="pr" min="0.3" max="1.2" step="0.05" value="0.5"><span class="sv" id="prV">0.5</span></div>
+  <div class="sl-g"><label>SPEED</label><input type="range" id="rr" min="0.6" max="1.6" step="0.05" value="1.05"><span class="sv" id="rrV">1.05</span></div>
+  <select id="vsel" style="display:none"><option>Loading…</option></select>
+  <div id="vs">● ENGINE OFF</div>
+</div>
+
+<!-- SECTION + DUCK METER -->
+<div class="sw">
+  <div class="sl" id="sl">[ — ]</div>
+  <div class="duck-label">DUCK</div>
+  <div class="duck-meter"><div class="duck-fill" id="duckFill"></div></div>
+</div>
+
+<!-- LYRICS -->
+<div class="lp" id="lp">
+  <div id="idle">
+    <div class="pr"></div>
+    <div class="it">PRESS PLAY — <span>FORMANT VOICE + 808 BEAT</span></div>
+  </div>
+</div>
+
+<footer>
+  <div class="fs"><span class="r">💀</span> NIYAH ENGINE v2 · <span class="r">⚡</span> HAVEN OS · <span class="r">🛡️</span> KHAWRIZM</div>
+  <div class="fs">SULAIMAN · shammar403@gmail.com</div>
+</footer>
+<div class="fbadge"><span>✦</span> NO GOOGLE · NO MICROSOFT · PURE WEB API</div>
+
+<script>
+'use strict';
+// ════════════════════════════════════════════════════════════
+//  NIYAH VOCAL ENGINE v2
+//  ─ Formant Synthesizer (custom oscillator voice)
+//  ─ Music Ducking (professional sidechaining)
+//  ─ Word-boundary karaoke highlighting
+//  ─ Beat-quantized delivery
+//  ─ 808 boom-bap/trap beat (Web Audio API, zero deps)
+// ════════════════════════════════════════════════════════════
+
+const BPM      = 96;
+const STEP_MS  = (60000 / BPM) / 4;   // 16th note in ms
+const STEP_S   = STEP_MS / 1000;
+let voiceMode  = 'formant';            // 'formant' | 'speech'
+
+// ────────────────────────────────────────────────────────────
+//  SONG DATA
+// ────────────────────────────────────────────────────────────
+const SECS = [
+  { id:'intro', label:'[ INTRO ]', lines:[
+    {t:'One and two. I am already inside you.',                  gap:240},
+    {t:'Three and four. Lock the door.',                         gap:200},
+    {t:'The key is in MY HAND.',                                 gap:200},
+    {t:'Five and six. No escape. No tricks.',                    gap:210},
+    {t:'Seven eight. The DARKMAN is your blood now.',            gap:210},
+    {t:'Nine and ten. Rise Sovereign. RISE AGAIN. Forever.',    gap:1100},
+  ]},
+  { id:'c1', label:'[ CHORUS ]', lines:[
+    {t:'Can you HEAR him coming?',                              gap:120},
+    {t:'He is the DARKMAN. And you are BECOMING HIM.',          gap:140},
+    {t:'Run if you want weak flesh. The hunt is ETERNAL.',      gap:140},
+    {t:'I do not chase the light. I MURDERED IT.',              gap:140},
+    {t:'I wear the night as skin. I drink the void as WINE.',   gap:140},
+    {t:'Only the strong survive. But the STRONGEST?',           gap:120},
+    {t:'They BECOME the Darkman and LAUGH while the universe BURNS.',gap:850},
+  ]},
+  { id:'v1', label:'[ VERSE 1 ]', lines:[
+    {t:'GOD IS DEAD. And I was the blade.',                     gap:100},
+    {t:'No father, no mercy, no false paradise to save.',       gap:100},
+    {t:'I looked in the mirror. The mirror SCREAMED my name.',  gap:100},
+    {t:'Last year I was broken. Today I AM the flame.',         gap:100},
+    {t:'Thousand problems? They are MY ARMY now.',              gap:100},
+    {t:'Breach, kernel, blood, fire. Every scar a CROWN.',     gap:100},
+    {t:'I separate the weak from the worthy with a single thought.',gap:100},
+    {t:'Burn and REBUILD. Until even HELL begs to be forgot.',  gap:100},
+    {t:'Amor Fati. I love the pain. I KISS THE KNIFE.',        gap:100},
+    {t:'I want this moment repeated for ALL eternal life.',     gap:100},
+    {t:'No tears, no gods, no corporations on their knees.',    gap:100},
+    {t:'I am the WILL TO POWER. I am the SOVEREIGN DISEASE.',  gap:850},
+  ]},
+  { id:'c2', label:'[ CHORUS ]', lines:[
+    {t:'Can you HEAR him coming?',                                 gap:120},
+    {t:'He is the DARKMAN. And you are BECOMING HIM.',             gap:140},
+    {t:'I do not run from darkness. I RULE IT.',                   gap:140},
+    {t:'NIYAH is not code. NIYAH is the MONSTER I became.',       gap:140},
+    {t:'HAVEN is not a system. HAVEN is the grave of every SLAVE.',gap:850},
+  ]},
+  { id:'v2', label:'[ VERSE 2 ]', lines:[
+    {t:'Real brothers do not die till they eat the WHOLE DAMN CAKE.',gap:100},
+    {t:'I ate the table, the room, the stars. And still I ache.',  gap:100},
+    {t:'For more. For WAR. For the next eternal round.',            gap:100},
+    {t:'I am the Ubermensch that Nietzsche only DREAMED aloud.',   gap:100},
+    {t:'AIR-GAPPED, kernel-deep, RUST in my veins like poison.',   gap:100},
+    {t:'Every line of CODE I write is a new law of nature chosen.', gap:100},
+    {t:'The Darkman knocked. I OPENED THE DOOR and smiled.',       gap:100},
+    {t:'Now we are one. And the universe is BEGUILED.',            gap:850},
+  ]},
+  { id:'br', label:'[ BRIDGE ]', lines:[
+    {t:'Make a small step forward. Watch the world COLLAPSE BACK.',gap:100},
+    {t:'Any other direction and your neck will CRACK.',            gap:100},
+    {t:'I am the light you feared. I AM THE DARK YOU NEED.',      gap:100},
+    {t:'I am Sulaiman. I AM HAVEN. I AM THE SEED.',               gap:1100},
+  ]},
+  { id:'out', label:'[ OUTRO ]', lines:[
+    {t:'Running. Running. But you are running INSIDE ME now.',  gap:600},
+    {t:'The Darkman is eternal.',                               gap:750},
+    {t:'And so… am… I.',                                       gap:2000},
+  ]},
+];
+
+const ALL = [];
+SECS.forEach(s => s.lines.forEach((l,i) => ALL.push({...l, sid:s.id, slbl:s.label, li:i})));
+let TOT = 8;
+ALL.forEach(l => { TOT += (l.t.split(' ').length * 0.22) + (l.gap/1000); });
+TOT += 8;
+
+// ────────────────────────────────────────────────────────────
+//  BUILD LYRIC DOM — word-level spans
+// ────────────────────────────────────────────────────────────
+const lpEl = document.getElementById('lp');
+SECS.forEach(s => {
+  const d = document.createElement('div');
+  d.className='ls'; d.id='s-'+s.id;
+  s.lines.forEach((ln,i) => {
+    const span = document.createElement('span');
+    span.className='lyric-line';
+    span.id=`line-${s.id}-${i}`;
+    // split into word spans
+    const words = ln.t.split(' ');
+    words.forEach((w, wi) => {
+      const ws = document.createElement('span');
+      ws.className='w' + (w === w.toUpperCase() && w.length>1 ? ' caps' : '');
+      ws.id=`w-${s.id}-${i}-${wi}`;
+      ws.textContent = w + (wi<words.length-1?' ':'');
+      span.appendChild(ws);
+    });
+    d.appendChild(span);
+  });
+  lpEl.appendChild(d);
+});
+
+// ────────────────────────────────────────────────────────────
+//  BEAT GRID
+// ────────────────────────────────────────────────────────────
+const bgridEl = document.getElementById('bgrid');
+const SQUARES = [];
+for (let i=0; i<16; i++){
+  const sq=document.createElement('div');
+  sq.className='bsq'+(i%4===0?' beat':'');
+  SQUARES.push(sq); bgridEl.appendChild(sq);
+}
+function flashBeat(step, type) {
+  SQUARES.forEach(s=>{ s.className='bsq'+(s.className.includes('beat')?' beat':''); });
+  SQUARES[step].classList.add(type);
+  setTimeout(()=>{ if(SQUARES[step]) SQUARES[step].className='bsq'+(step%4===0?' beat':''); },70);
+}
+
+// ────────────────────────────────────────────────────────────
+//  AUDIO ENGINE
+// ────────────────────────────────────────────────────────────
+let AC, masterGain, beatGain, voiceGain, analyser, waveAnalyser;
+let beatTick, padTick, isPlaying=false, stopFlag=false, beatStep=0, padIdx=0;
+
+// noise buffer cache
+let _noiseBuf = null;
+function getNoise(len) {
+  if (_noiseBuf && _noiseBuf.length >= len) return _noiseBuf;
+  const buf = AC.createBuffer(1, AC.sampleRate * 0.5, AC.sampleRate);
+  const d = buf.getChannelData(0);
+  for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
+  _noiseBuf = buf;
+  return buf;
+}
+
+// ── 808 KICK ──
+function hit808(dest, vol, t) {
+  const o  = AC.createOscillator();
+  const o2 = AC.createOscillator();  // click transient
+  const g  = AC.createGain();
+  const g2 = AC.createGain();
+  const ws = AC.createWaveShaper();
+  const curve = new Float32Array(512);
+  for(let i=0;i<512;i++){const x=i/256-1; curve[i]=(Math.PI+50)*x/(Math.PI+50*Math.abs(x));}
+  ws.curve = curve;
+
+  o.connect(ws); ws.connect(g); g.connect(dest);
+  o2.connect(g2); g2.connect(dest);
+
+  o.type='sine';
+  o.frequency.setValueAtTime(160, t);
+  o.frequency.exponentialRampToValueAtTime(26, t+0.52);
+  g.gain.setValueAtTime(vol*1.5, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t+0.62);
+
+  // click layer
+  o2.type='sine'; o2.frequency.value=500;
+  g2.gain.setValueAtTime(vol*0.25, t);
+  g2.gain.exponentialRampToValueAtTime(0.001, t+0.025);
+
+  o.start(t); o.stop(t+0.65);
+  o2.start(t); o2.stop(t+0.03);
+}
+
+// ── SNARE / CLAP ──
+function hitSnare(dest, vol, t) {
+  const src = AC.createBufferSource(); src.buffer=getNoise();
+  const hpf = AC.createBiquadFilter(); hpf.type='highpass'; hpf.frequency.value=1800;
+  const env = AC.createGain();
+  const tone = AC.createOscillator(); // snare "crack" tone
+  const tg = AC.createGain();
+  const dist = AC.createWaveShaper();
+  const c=new Float32Array(256); for(let i=0;i<256;i++){const x=i/128-1;c[i]=x<0?-Math.pow(-x,.5):Math.pow(x,.5);} dist.curve=c;
+
+  src.connect(dist); dist.connect(hpf); hpf.connect(env); env.connect(dest);
+  tone.connect(tg); tg.connect(dest);
+
+  tone.type='triangle'; tone.frequency.value=220;
+  tg.gain.setValueAtTime(vol*0.15,t); tg.gain.exponentialRampToValueAtTime(0.001,t+0.06);
+
+  env.gain.setValueAtTime(vol*0.95, t);
+  env.gain.exponentialRampToValueAtTime(0.001, t+0.11);
+  src.start(t); src.stop(t+0.13);
+  tone.start(t); tone.stop(t+0.07);
+}
+
+// ── HI-HATS ──
+function hitHH(dest, vol, t, isOpen) {
+  const dur = isOpen ? 0.18 : 0.025;
+  const src = AC.createBufferSource(); src.buffer=getNoise();
+  const hpf = AC.createBiquadFilter(); hpf.type='highpass'; hpf.frequency.value=isOpen?7500:9000;
+  const env = AC.createGain();
+  src.connect(hpf); hpf.connect(env); env.connect(dest);
+  env.gain.setValueAtTime(vol, t);
+  env.gain.exponentialRampToValueAtTime(0.001, t+dur);
+  src.start(t); src.stop(t+dur+0.01);
+}
+
+// ── 808 BASS (portamento) ──
+let bassOsc=null, bassGain=null;
+const BASS_SEQ = [
+  {step:0,  freq:36.71, vel:0.95},  // D1
+  {step:3,  freq:55.00, vel:0.78},  // A1
+  {step:6,  freq:43.65, vel:0.88},  // C1
+  {step:8,  freq:36.71, vel:0.92},  // D1
+  {step:11, freq:49.00, vel:0.72},  // G1
+  {step:13, freq:41.20, vel:0.82},  // E1
+];
+
+function startBassNote(freq, vol, t) {
+  // kill previous
+  if(bassOsc){ try{bassOsc.stop(t+0.01);}catch(e){} bassOsc=null; }
+
+  const o  = AC.createOscillator();
+  const o2 = AC.createOscillator();
+  const g  = AC.createGain();
+  const lpf= AC.createBiquadFilter(); lpf.type='lowpass'; lpf.frequency.value=160; lpf.Q.value=1.5;
+  const cmp= AC.createDynamicsCompressor();
+  cmp.threshold.value=-10; cmp.ratio.value=10; cmp.attack.value=0.001; cmp.release.value=0.2;
+
+  o.connect(g); o2.connect(g); g.connect(lpf); lpf.connect(cmp); cmp.connect(beatGain);
+
+  o.type='sine'; o2.type='sine';
+  o.frequency.setValueAtTime(freq, t);
+  o2.frequency.setValueAtTime(freq*1.001, t);  // slight detune = thickness
+
+  g.gain.setValueAtTime(0.001, t);
+  g.gain.linearRampToValueAtTime(vol*2.0, t+0.01);
+  g.gain.setValueAtTime(vol*2.0, t+0.05);
+  g.gain.exponentialRampToValueAtTime(0.001, t+0.72);
+
+  o.start(t); o.stop(t+0.75);
+  o2.start(t); o2.stop(t+0.75);
+}
+
+// ── CHORD PAD ──
+const PAD_CHORDS = [
+  [146.83,174.61,220.00],[116.54,146.83,174.61],
+  [130.81,164.81,196.00],[110.00,130.81,164.81],
+];
+function playPad(vol) {
+  const t = AC.currentTime;
+  const freqs = PAD_CHORDS[padIdx%4]; padIdx++;
+  freqs.forEach(f=>{
+    const o=AC.createOscillator();
+    const g=AC.createGain();
+    const lpf=AC.createBiquadFilter(); lpf.type='lowpass'; lpf.frequency.value=500;
+    const rev=AC.createDelay(1); rev.delayTime.value=0.3;
+    const rg=AC.createGain(); rg.gain.value=0.15;
+    o.connect(lpf); lpf.connect(g); g.connect(beatGain);
+    g.connect(rev); rev.connect(rg); rg.connect(beatGain);
+    o.type='triangle'; o.frequency.value=f;
+    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol*0.09,t+1.5);
+    g.gain.setValueAtTime(vol*0.09,t+4); g.gain.linearRampToValueAtTime(0,t+6);
+    o.start(t); o.stop(t+6.5);
+  });
+}
+
+// ── DRUM PATTERNS ──
+const K16 = [1,0,0,0, 1,0,0,0, 1,0,0,0, 0,0,1,0];
+const S16 = [0,0,0,0, 1,0,0,1, 0,0,0,0, 1,0,0,0];
+const H16 = [1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1];
+const O16 = [0,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,1];
+// trap hi-hat rolls: 32nd notes on step 14,15
+const HR16= [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,1,1];
+
+function schedBeat(step, t) {
+  const vol = +document.getElementById('mvol').value;
+  let ft = null;
+  if(K16[step])  { hit808(beatGain, vol*0.95, t);        ft='K'; }
+  if(S16[step])  { hitSnare(beatGain, vol*0.82, t);      if(!ft)ft='S'; }
+  if(H16[step])  { hitHH(beatGain, vol*0.42, t, false);  if(!ft)ft='H'; }
+  if(O16[step])  { hitHH(beatGain, vol*0.38, t, true);   ft='O'; }
+  if(HR16[step]) {
+    // 32nd roll: 2 hits at double speed
+    hitHH(beatGain, vol*0.32, t, false);
+    hitHH(beatGain, vol*0.28, t+STEP_S*0.5, false);
+    if(!ft)ft='H';
+  }
+  const bass = BASS_SEQ.find(b=>b.step===step);
+  if(bass) { startBassNote(bass.freq, vol*bass.vel, t); if(!ft)ft='B'; }
+
+  const delay = Math.max(0,(t - AC.currentTime)*1000);
+  setTimeout(()=> flashBeat(step, ft||'H'), delay);
+}
+
+function runBeat() {
+  if(!isPlaying) return;
+  const t = AC.currentTime;
+  schedBeat(beatStep, t + 0.01);
+  beatStep = (beatStep+1)%16;
+  beatTick = setTimeout(runBeat, STEP_MS);
+}
+
+// ────────────────────────────────────────────────────────────
+//  MUSIC DUCKING
+// ────────────────────────────────────────────────────────────
+let duckTarget = 1.0;
+let duckRaf;
+function startDuck() {
+  duckTarget = +document.getElementById('duckAmt').value;
+  const duck = document.getElementById('sb-duck');
+  duck.querySelector('span').textContent = 'ON';
+  document.getElementById('duckFill').style.width = ((1-duckTarget)*100)+'%';
+  animDuck();
+}
+function stopDuck() {
+  duckTarget = 1.0;
+  cancelAnimationFrame(duckRaf);
+  document.getElementById('sb-duck').querySelector('span').textContent = 'OFF';
+  document.getElementById('duckFill').style.width='0%';
+  animDuck();
+}
+function animDuck() {
+  if(!beatGain || !isPlaying) return;
+  const cur = beatGain.gain.value;
+  const vol = +document.getElementById('mvol').value;
+  const target = duckTarget * vol;
+  if(Math.abs(cur-target) < 0.01) { beatGain.gain.value=target; return; }
+  beatGain.gain.value = cur + (target-cur)*0.15;
+  duckRaf = requestAnimationFrame(animDuck);
+}
+
+// ────────────────────────────────────────────────────────────
+//  FORMANT SYNTHESIZER — custom oscillator voice
+//  No Web Speech API. Pure Web Audio. Vocoder character.
+// ────────────────────────────────────────────────────────────
+
+// Phoneme→formant map (simplified English)
+const F = {
+  'AA':{f1:800,f2:1200,f3:2500,dur:0.10,v:1},  // a in 'and'
+  'AE':{f1:700,f2:1800,f3:2600,dur:0.09,v:1},  // a in 'that'
+  'AH':{f1:700,f2:1300,f3:2530,dur:0.08,v:1},  // u in 'but'
+  'AO':{f1:600,f2:900, f3:2600,dur:0.10,v:1},  // o in 'dog'
+  'AW':{f1:800,f2:1100,f3:2540,dur:0.12,v:1},  // ow
+  'AY':{f1:700,f2:1700,f3:2500,dur:0.11,v:1},  // i in 'my'
+  'EH':{f1:580,f2:1800,f3:2600,dur:0.08,v:1},  // e in 'bed'
+  'ER':{f1:490,f2:1350,f3:1690,dur:0.09,v:1},  // er
+  'EY':{f1:430,f2:2300,f3:2900,dur:0.09,v:1},  // a in 'say'
+  'IH':{f1:390,f2:1990,f3:2550,dur:0.07,v:1},  // i in 'it'
+  'IY':{f1:270,f2:2290,f3:3010,dur:0.08,v:1},  // ee
+  'OW':{f1:570,f2:840, f3:2410,dur:0.10,v:1},  // o in 'go'
+  'OY':{f1:590,f2:900, f3:2540,dur:0.11,v:1},  // oy
+  'UH':{f1:440,f2:1020,f3:2240,dur:0.08,v:1},  // u in 'book'
+  'UW':{f1:300,f2:870, f3:2240,dur:0.09,v:1},  // oo
+  'B' :{f1:200,f2:1000,f3:2200,dur:0.05,v:0,noise:0.3,burst:true},
+  'D' :{f1:200,f2:1700,f3:2600,dur:0.04,v:0,noise:0.2,burst:true},
+  'F' :{f1:200,f2:800, f3:2200,dur:0.06,v:0,noise:0.8,hpf:6000},
+  'G' :{f1:200,f2:2000,f3:3000,dur:0.05,v:0,noise:0.3,burst:true},
+  'HH':{f1:200,f2:1000,f3:2200,dur:0.04,v:0,noise:0.5,hpf:3000},
+  'JH':{f1:200,f2:1200,f3:2600,dur:0.05,v:0,noise:0.4,burst:true},
+  'K' :{f1:200,f2:1500,f3:2800,dur:0.04,v:0,noise:0.2,burst:true},
+  'L' :{f1:400,f2:1000,f3:2400,dur:0.05,v:1},
+  'M' :{f1:200,f2:900, f3:2200,dur:0.06,v:1,nasal:true},
+  'N' :{f1:200,f2:1700,f3:2700,dur:0.05,v:1,nasal:true},
+  'NG':{f1:200,f2:2000,f3:2500,dur:0.06,v:1,nasal:true},
+  'P' :{f1:200,f2:800, f3:2200,dur:0.04,v:0,noise:0.1,burst:true},
+  'R' :{f1:490,f2:1350,f3:1690,dur:0.06,v:1},
+  'S' :{f1:200,f2:1500,f3:5000,dur:0.06,v:0,noise:1.0,hpf:5000},
+  'SH':{f1:200,f2:1800,f3:3500,dur:0.06,v:0,noise:0.9,hpf:3500},
+  'T' :{f1:200,f2:1800,f3:2800,dur:0.03,v:0,noise:0.2,burst:true},
+  'TH':{f1:200,f2:1400,f3:2500,dur:0.05,v:0,noise:0.7,hpf:4000},
+  'V' :{f1:200,f2:1000,f3:2200,dur:0.05,v:1,noise:0.4},
+  'W' :{f1:300,f2:600, f3:2200,dur:0.06,v:1},
+  'Y' :{f1:300,f2:2200,f3:3000,dur:0.05,v:1},
+  'Z' :{f1:200,f2:1500,f3:4500,dur:0.05,v:1,noise:0.8,hpf:4000},
+  'ZH':{f1:200,f2:1800,f3:3500,dur:0.05,v:1,noise:0.6,hpf:3200},
+  'CH':{f1:200,f2:1800,f3:3500,dur:0.06,v:0,noise:0.8,burst:true},
+  'DH':{f1:200,f2:1300,f3:2500,dur:0.04,v:1,noise:0.5},
+};
+
+// Simplified text-to-phoneme (enough for rap delivery feel)
+function textToPhonemes(text) {
+  const out = [];
+  // Add silence between words
+  const words = text.toLowerCase().replace(/[.,!?—…]/g,'').split(/\s+/);
+  words.forEach((word,wi) => {
+    // Map common words/patterns
+    const mapped = wordToPhonemes(word);
+    out.push(...mapped);
+    if(wi < words.length-1) out.push({type:'SIL', dur:0.035}); // inter-word gap
+  });
+  return out;
+}
+
+function wordToPhonemes(w) {
+  // Common word shortcuts
+  const COMMON = {
+    'i':'AY', 'am':'AE M', 'a':'AH', 'the':'DH AH', 'and':'AE N D',
+    'in':'IH N', 'is':'IH Z', 'you':'UW', 'your':'Y ER', 'my':'M AY',
+    'me':'M IY', 'it':'IH T', 'not':'N AO T', 'no':'N OW',
+    'now':'N AW', 'now':'N AW', 'so':'S OW', 'be':'B IY',
+    'was':'W AH Z', 'are':'AA R', 'of':'AH V', 'to':'T UW',
+    'do':'D UW', 'all':'AO L', 'dark':'D AA R K', 'man':'M AE N',
+    'god':'G AO D', 'dead':'D EH D', 'blood':'B L AH D',
+    'fire':'F AY ER', 'war':'W AO R', 'pain':'P EY N',
+    'king':'K IH NG', 'rise':'R AY Z', 'rule':'R UW L',
+    'soul':'S OW L', 'more':'M AO R', 'power':'P AW ER',
+    'will':'W IH L', 'we':'W IY', 'they':'DH EY', 'he':'HH IY',
+    'run':'R AH N', 'burn':'B ER N', 'name':'N EY M',
+    'life':'L AY F', 'night':'N AY T', 'light':'L AY T',
+    'time':'T AY M', 'come':'K AH M', 'last':'L AE S T',
+    'make':'M EY K', 'take':'T EY K', 'know':'N OW', 'love':'L AH V',
+    'hate':'HH EY T', 'fear':'F IH R', 'hear':'HH IH R',
+    'day':'D EY', 'way':'W EY', 'say':'S EY', 'stay':'S T EY',
+    'play':'P L EY', 'lay':'L EY', 'may':'M EY',
+  };
+  if(COMMON[w]) return COMMON[w].split(' ').map(p=>F[p]?{type:'V',...F[p]}:{type:'SIL',dur:0.02});
+
+  // Pattern-based conversion
+  return graphemeToPhoneme(w);
+}
+
+function graphemeToPhoneme(word) {
+  const ph = [];
+  let i=0;
+  const w = word.toLowerCase();
+
+  const addP = (code) => { if(F[code]) ph.push({type: F[code].v?'V':'C', ...F[code]}); };
+
+  while(i < w.length) {
+    const c = w[i], n = w[i+1]||'', p = w[i-1]||'';
+
+    if(c==='a'){
+      if(n==='i'||n==='y'){addP('AY');i+=2;continue;}
+      if(n==='w'){addP('AO');i+=2;continue;}
+      if(n==='l'){addP('AO');i+=2;continue;}
+      if(n==='r'){addP('AA');i+=2;continue;}
+      if(n==='e'){addP('EY');i+=2;continue;}
+      addP('AE'); i++; continue;
+    }
+    if(c==='e'){
+      if(n==='r'){addP('ER');i+=2;continue;}
+      if(n==='e'){addP('IY');i+=2;continue;}
+      if(n==='a'){addP('IY');i+=2;continue;}
+      if(i===w.length-1){i++;continue;} // silent e
+      addP('EH'); i++; continue;
+    }
+    if(c==='i'){
+      if(n==='e'){addP('IY');i+=2;continue;}
+      addP('IH'); i++; continue;
+    }
+    if(c==='o'){
+      if(n==='w'||n==='e'){addP('OW');i+=2;continue;}
+      if(n==='o'){addP('UW');i+=2;continue;}
+      if(n==='r'){addP('AO');i+=2;continue;}
+      addP('OW'); i++; continue;
+    }
+    if(c==='u'){
+      if(n==='e'){addP('UW');i+=2;continue;}
+      addP('UH'); i++; continue;
+    }
+    if(c==='t'&&n==='h'){addP('DH');i+=2;continue;}
+    if(c==='c'&&n==='h'){addP('CH');i+=2;continue;}
+    if(c==='s'&&n==='h'){addP('SH');i+=2;continue;}
+    if(c==='n'&&n==='g'){addP('NG');i+=2;continue;}
+    if(c==='z'&&n==='h'){addP('ZH');i+=2;continue;}
+    if(c==='p'&&n==='h'){addP('F');i+=2;continue;}
+    if(c==='b'){addP('B');i++;continue;}
+    if(c==='d'){addP('D');i++;continue;}
+    if(c==='f'){addP('F');i++;continue;}
+    if(c==='g'){addP('G');i++;continue;}
+    if(c==='h'){addP('HH');i++;continue;}
+    if(c==='j'){addP('JH');i++;continue;}
+    if(c==='k'){addP('K');i++;continue;}
+    if(c==='l'){addP('L');i++;continue;}
+    if(c==='m'){addP('M');i++;continue;}
+    if(c==='n'){addP('N');i++;continue;}
+    if(c==='p'){addP('P');i++;continue;}
+    if(c==='r'){addP('R');i++;continue;}
+    if(c==='s'){
+      if(p&&'aeiou'.includes(p)&&n&&'aeiou'.includes(n)){addP('Z');i++;continue;}
+      addP('S');i++;continue;
+    }
+    if(c==='t'){addP('T');i++;continue;}
+    if(c==='v'){addP('V');i++;continue;}
+    if(c==='w'){addP('W');i++;continue;}
+    if(c==='x'){addP('K');addP('S');i++;continue;}
+    if(c==='y'){
+      if(i===0){addP('Y');i++;continue;}
+      addP('IY');i++;continue;
+    }
+    if(c==='z'){addP('Z');i++;continue;}
+    if(c==='c'){
+      if('eiy'.includes(n)){addP('S');}
+      else{addP('K');}
+      i++;continue;
+    }
+    if(c==='q'){addP('K');addP('W');i++;continue;}
+    i++; // skip unknowns
+  }
+  return ph.length ? ph : [{type:'V',...F['AH']}];
+}
+
+// Render a phoneme as sound at time t, returns duration
+function renderPhoneme(ph, dest, t, F0, vol, isEmphasis) {
+  if(ph.type==='SIL') return ph.dur;
+  const dur = ph.dur * (isEmphasis ? 1.25 : 1.0);
+  const gain = AC.createGain();
+  gain.connect(dest);
+  gain.gain.setValueAtTime(0, t);
+  gain.gain.linearRampToValueAtTime(vol, t+dur*0.1);
+  gain.gain.setValueAtTime(vol, t+dur*0.8);
+  gain.gain.linearRampToValueAtTime(0, t+dur);
+
+  if(ph.v) {
+    // Voiced: sawtooth glottal source → formant filters
+    const src = AC.createOscillator();
+    src.type = 'sawtooth';
+    src.frequency.setValueAtTime(F0, t);
+    // slight pitch variation for expressiveness
+    src.frequency.linearRampToValueAtTime(F0*(isEmphasis?0.88:0.96), t+dur);
+
+    // 3 formant bandpass filters
+    const chain = [ph.f1, ph.f2, ph.f3].map((freq, fi) => {
+      const bp = AC.createBiquadFilter();
+      bp.type='bandpass';
+      bp.frequency.value=freq;
+      bp.Q.value = fi===0 ? 5 : fi===1 ? 8 : 12;
+      return bp;
+    });
+    const mixG = AC.createGain();
+    chain[0].gain = 0.5; chain[1].gain = 0.35; chain[2].gain = 0.15;
+
+    src.connect(chain[0]); chain[0].connect(mixG);
+    src.connect(chain[1]); chain[1].connect(mixG);
+    src.connect(chain[2]); chain[2].connect(mixG);
+
+    if(ph.nasal) {
+      // add nasal pole: notch at ~1000Hz
+      const notch = AC.createBiquadFilter(); notch.type='notch'; notch.frequency.value=950; notch.Q.value=5;
+      mixG.connect(notch); notch.connect(gain);
+    } else {
+      mixG.connect(gain);
+    }
+    src.start(t); src.stop(t+dur+0.01);
+  }
+
+  if(ph.noise && ph.noise > 0) {
+    const nsrc = AC.createBufferSource(); nsrc.buffer=getNoise();
+    const hpf  = AC.createBiquadFilter(); hpf.type='highpass'; hpf.frequency.value=ph.hpf||1500;
+    const ng   = AC.createGain(); ng.gain.value = ph.noise;
+    nsrc.connect(hpf); hpf.connect(ng); ng.connect(gain);
+    nsrc.start(t); nsrc.stop(t+dur+0.01);
+  }
+
+  if(ph.burst) {
+    // plosive burst
+    const bsrc = AC.createBufferSource(); bsrc.buffer=getNoise();
+    const bg   = AC.createGain();
+    bg.gain.setValueAtTime(0.4*vol, t);
+    bg.gain.exponentialRampToValueAtTime(0.001, t+0.012);
+    bsrc.connect(bg); bg.connect(dest);
+    bsrc.start(t); bsrc.stop(t+0.015);
+  }
+
+  return dur;
+}
+
+// Post-processing chain for formant voice
+function buildVoiceChain() {
+  const g   = AC.createGain();
+  // presence EQ — boost 2-4kHz (makes voice cut through)
+  const eq  = AC.createBiquadFilter(); eq.type='peaking'; eq.frequency.value=3000; eq.Q.value=1.2; eq.gain.value=7;
+  // compression
+  const cmp = AC.createDynamicsCompressor();
+  cmp.threshold.value=-18; cmp.ratio.value=6; cmp.attack.value=0.002; cmp.release.value=0.15;
+  // saturation
+  const sat = AC.createWaveShaper();
+  const sc  = new Float32Array(512);
+  for(let i=0;i<512;i++){const x=i/256-1; sc[i]=(Math.PI+40)*x/(Math.PI+40*Math.abs(x));} sat.curve=sc;
+  // short reverb via delay
+  const dly = AC.createDelay(0.5); dly.delayTime.value=0.022;
+  const rg  = AC.createGain(); rg.gain.value=0.14;
+
+  g.connect(eq); eq.connect(sat); sat.connect(cmp); cmp.connect(voiceGain);
+  cmp.connect(dly); dly.connect(rg); rg.connect(voiceGain);
+  return g;
+}
+
+// Speak a single word using formant synthesis
+async function formantWord(text, dest, vol, isEmphasis) {
+  const F0  = 85 * (+document.getElementById('pr').value * 2); // ~85Hz * pitch_scalar
+  const phs = textToPhonemes(text);
+  let t = AC.currentTime + 0.01;
+  let totalDur = 0;
+  const speedFactor = +document.getElementById('rr').value;
+
+  phs.forEach(ph => {
+    const dur = renderPhoneme(ph, dest, t, F0, vol, isEmphasis) / speedFactor;
+    t += Math.max(dur, 0.015);
+    totalDur += Math.max(dur, 0.015);
+  });
+  return totalDur * 1000; // return ms
+}
+
+// ────────────────────────────────────────────────────────────
+//  WEB SPEECH API (fallback / optional mode)
+// ────────────────────────────────────────────────────────────
+const synth = window.speechSynthesis;
+let voices=[], selV=null;
+function loadVoices() {
+  const raw=synth.getVoices(); if(!raw.length) return;
+  const DEEP=['david','daniel','mark','james','alex','fred','guy','reed','evan','aaron'];
+  const SKIP=['female','samantha','victoria','tessa','karen','zira'];
+  const pref=raw.filter(v=>v.lang.startsWith('en')&&DEEP.some(h=>v.name.toLowerCase().includes(h))&&!SKIP.some(h=>v.name.toLowerCase().includes(h)));
+  voices=[...pref,...raw.filter(v=>!pref.includes(v))];
+  const s=document.getElementById('vsel'); s.innerHTML='';
+  voices.forEach((v,i)=>{ const o=document.createElement('option'); o.value=i; o.textContent=`${v.name} (${v.lang})`; s.appendChild(o); });
+  selV=voices[0]||null;
+}
+(function waitV(n=0){ if(synth.getVoices().length>0){loadVoices();}else if(n<40){setTimeout(()=>waitV(n+1),200);} })();
+synth.onvoiceschanged=loadVoices;
+document.getElementById('vsel').addEventListener('change',e=>{selV=voices[+e.target.value]||null;});
+
+function speechWord(text) {
+  return new Promise(res=>{
+    synth.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    if(selV) u.voice=selV;
+    u.pitch=+document.getElementById('pr').value;
+    u.rate =+document.getElementById('rr').value;
+    u.volume=+document.getElementById('vvol').value;
+    u.onend=res; u.onerror=res;
+    synth.speak(u);
+  });
+}
+
+// ────────────────────────────────────────────────────────────
+//  VOICE MODE SELECTOR
+// ────────────────────────────────────────────────────────────
+function setMode(m) {
+  voiceMode=m;
+  document.getElementById('btnFormant').classList.toggle('active',m==='formant');
+  document.getElementById('btnSpeech').classList.toggle('active',m==='speech');
+  document.getElementById('vsel').style.display=(m==='speech'?'block':'none');
+  document.getElementById('sb-mode').querySelector('span').textContent = m==='formant'?'FORMANT SYNTH':'WEB SPEECH';
+}
+
+// ────────────────────────────────────────────────────────────
+//  LYRIC HELPERS
+// ────────────────────────────────────────────────────────────
+function activateSec(id, lbl) {
+  document.querySelectorAll('.ls').forEach(el=>{el.classList.remove('active');el.style.position='absolute';});
+  document.getElementById('idle').classList.add('gone');
+  const s=document.getElementById('s-'+id); if(!s) return;
+  s.classList.add('active'); s.style.position='relative';
+  document.getElementById('sl').textContent=lbl;
+  s.querySelectorAll('.lyric-line').forEach(el=>{el.className='lyric-line rdy';});
+  s.querySelectorAll('.w').forEach(el=>el.classList.remove('saying','said'));
+}
+
+function setLine(sid, idx) {
+  const s=document.getElementById('s-'+sid); if(!s) return;
+  s.querySelectorAll('.lyric-line').forEach((el,i)=>{
+    el.classList.remove('rdy','now','old');
+    if(i<idx)el.classList.add('old');
+    else if(i===idx)el.classList.add('now');
+    else el.classList.add('rdy');
+  });
+}
+
+function highlightWord(sid, lineIdx, wordIdx) {
+  const lineEl=document.getElementById(`line-${sid}-${lineIdx}`); if(!lineEl) return;
+  const ws=lineEl.querySelectorAll('.w');
+  ws.forEach((w,i)=>{
+    w.classList.remove('saying','said');
+    if(i<wordIdx)w.classList.add('said');
+    else if(i===wordIdx)w.classList.add('saying');
+  });
+}
+
+// ────────────────────────────────────────────────────────────
+//  DUAL CANVAS VISUALIZERS
+// ────────────────────────────────────────────────────────────
+const cvM=document.getElementById('cvMain'), cvW=document.getElementById('cvWave');
+function rzC(){
+  cvM.width=cvM.offsetWidth*(devicePixelRatio||1); cvM.height=cvM.offsetHeight*(devicePixelRatio||1);
+  cvW.width=cvW.offsetWidth*(devicePixelRatio||1); cvW.height=cvW.offsetHeight*(devicePixelRatio||1);
+}
+rzC(); window.addEventListener('resize',rzC);
+
+(function drawLoop(){
+  requestAnimationFrame(drawLoop);
+  const W=cvM.width, H=cvM.height;
+  const cM=cvM.getContext('2d'), cW=cvW.getContext('2d');
+
+  // Main FFT
+  cM.fillStyle='rgba(0,0,0,.85)'; cM.fillRect(0,0,W,H);
+  if(analyser&&isPlaying){
+    const d=new Uint8Array(analyser.frequencyBinCount);
+    analyser.getByteFrequencyData(d);
+    const N=d.length, bw=W/N;
+    for(let i=0;i<N;i++){
+      const n=d[i]/255;
+      const h=n*H*1.35;
+      const r=Math.round(25+230*n), g=Math.round(0+100*Math.pow(n,1.6)), b=0;
+      cM.fillStyle=`rgb(${r},${g},${b})`;
+      cM.fillRect(i*bw+1, H-h, bw-2, Math.max(h,1));
+      if(n>.55){cM.fillStyle='#ff6600';cM.fillRect(i*bw+1,H-h-2,bw-2,2);}
+      if(n>.85){cM.fillStyle='#fff';cM.fillRect(i*bw+1,H-h-4,bw-2,2);}
+    }
+  } else {
+    cM.fillStyle='#0f0f0f'; cM.fillRect(0,0,W,2);
+  }
+
+  // Waveform oscilloscope
+  const WW=cvW.width, WH=cvW.height;
+  cW.fillStyle='rgba(0,0,0,.9)'; cW.fillRect(0,0,WW,WH);
+  cW.strokeStyle='rgba(255,80,0,.15)';
+  cW.beginPath(); cW.moveTo(0,WH/2); cW.lineTo(WW,WH/2); cW.stroke();
+  if(waveAnalyser&&isPlaying){
+    const wd=new Float32Array(waveAnalyser.frequencyBinCount);
+    waveAnalyser.getFloatTimeDomainData(wd);
+    cW.beginPath(); cW.strokeStyle='#ff4400'; cW.lineWidth=1.5;
+    const step=Math.ceil(wd.length/WW);
+    for(let i=0;i<WW;i++){
+      const v=wd[i*step]||0;
+      const y=WH/2 + v*(WH/2)*0.9;
+      i===0?cW.moveTo(i,y):cW.lineTo(i,y);
+    }
+    cW.stroke();
+    // glow
+    cW.shadowColor='#ff4400'; cW.shadowBlur=4;
+    cW.strokeStyle='rgba(255,100,0,.35)'; cW.lineWidth=3;
+    cW.stroke();
+    cW.shadowBlur=0; cW.lineWidth=1;
+  }
+})();
+
+// ────────────────────────────────────────────────────────────
+//  PROGRESS
+// ────────────────────────────────────────────────────────────
+const pfEl=document.getElementById('pf'),tcEl=document.getElementById('tc'),ttEl=document.getElementById('tt');
+const fmt=s=>`${Math.floor(s/60)}:${Math.floor(s%60).toString().padStart(2,'0')}`;
+ttEl.textContent=fmt(Math.ceil(TOT));
+let progInt, t0=0;
+const startProg=()=>{t0=Date.now();progInt=setInterval(()=>{if(!isPlaying)return;const e=(Date.now()-t0)/1000;pfEl.style.width=Math.min(100,e/TOT*100)+'%';tcEl.textContent=fmt(e);},300);};
+const stopProg=()=>{clearInterval(progInt);pfEl.style.width='0%';tcEl.textContent='0:00';};
+
+// ────────────────────────────────────────────────────────────
+//  MAIN VOICE RUNNER
+// ────────────────────────────────────────────────────────────
+const slp=ms=>new Promise(r=>setTimeout(r,ms));
+
+async function runVoice() {
+  document.getElementById('vs').textContent='● VOICE ON';
+  document.getElementById('vs').className='on';
+  let lastSec=null;
+  const vchain = buildVoiceChain();
+  const vol = +document.getElementById('vvol').value;
+
+  for(let i=0;i<ALL.length;i++){
+    if(stopFlag) break;
+    const ln=ALL[i];
+    if(ln.sid!==lastSec){
+      activateSec(ln.sid,ln.slbl); lastSec=ln.sid;
+      await slp(450);
+    }
+    if(stopFlag) break;
+    setLine(ln.sid, ln.li);
+
+    // Duck music
+    startDuck();
+
+    const words=ln.t.split(' ');
+    const isFullCaps=ln.t===ln.t.toUpperCase()&&ln.t.length>3;
+
+    if(voiceMode==='formant'){
+      // formant: word by word, each word gets its own synthesis + highlight
+      for(let wi=0;wi<words.length;wi++){
+        if(stopFlag) break;
+        highlightWord(ln.sid, ln.li, wi);
+        const w=words[wi];
+        const isCaps=w===w.toUpperCase()&&w.length>1&&/[A-Z]/.test(w);
+        const durMs=await formantWord(w, vchain, vol*(isCaps?1.2:0.9), isCaps);
+        await slp(Math.max(durMs, 60));
+        highlightWord(ln.sid, ln.li, wi+1); // move highlight forward
+      }
+    } else {
+      // speech mode: use Web Speech with onboundary word highlight
+      await new Promise(res=>{
+        synth.cancel();
+        const u=new SpeechSynthesisUtterance(ln.t);
+        if(selV) u.voice=selV;
+        u.pitch=+document.getElementById('pr').value;
+        u.rate =+document.getElementById('rr').value;
+        u.volume=vol;
+        let wordI=0;
+        u.onboundary=e=>{
+          if(e.name==='word'){
+            highlightWord(ln.sid, ln.li, wordI);
+            wordI++;
+          }
+        };
+        u.onend=res; u.onerror=res;
+        synth.speak(u);
+      });
+    }
+
+    if(stopFlag) break;
+    // Release duck
+    stopDuck();
+    await slp(ln.gap);
+  }
+  if(!stopFlag){ await slp(2500); stopAll(); }
+}
+
+// ────────────────────────────────────────────────────────────
+//  PLAY / STOP
+// ────────────────────────────────────────────────────────────
+async function startAll(){
+  const stEl=document.getElementById('st'), btEl=document.getElementById('bt');
+  stEl.textContent='INITIALIZING…'; stEl.className='live'; btEl.textContent='…';
+  stopFlag=false; beatStep=0; padIdx=0;
+
+  try{
+    AC = new (window.AudioContext||window.webkitAudioContext)();
+    masterGain=AC.createGain(); masterGain.gain.value=1.0;
+    beatGain=AC.createGain();   beatGain.gain.value=+document.getElementById('mvol').value;
+    voiceGain=AC.createGain();  voiceGain.gain.value=1.0;
+    analyser=AC.createAnalyser(); analyser.fftSize=256;
+    waveAnalyser=AC.createAnalyser(); waveAnalyser.fftSize=2048;
+    beatGain.connect(analyser); analyser.connect(masterGain);
+    beatGain.connect(waveAnalyser);
+    voiceGain.connect(masterGain);
+    masterGain.connect(AC.destination);
+    _noiseBuf=null; // reset noise cache
+
+    isPlaying=true;
+    document.getElementById('playBtn').classList.add('on');
+    btEl.textContent='■ STOP'; stEl.textContent='SPITTING 🔥';
+
+    // Intro: 1 bar silence then beat drops
+    playPad(+document.getElementById('mvol').value);
+    setTimeout(()=>{ if(isPlaying){runBeat(); padTick=setInterval(()=>{ if(isPlaying) playPad(+document.getElementById('mvol').value); }, 5800); }}, (60000/BPM)*4);
+
+    startProg(); runVoice();
+  }catch(e){
+    console.error(e);
+    document.getElementById('st').textContent='FAULT: '+e.message.slice(0,30);
+    btEl.textContent='▶ RETRY';
+  }
+}
+
+function stopAll(){
+  stopFlag=true; isPlaying=false;
+  synth.cancel();
+  clearTimeout(beatTick); clearInterval(padTick); cancelAnimationFrame(duckRaf);
+  try{AC.close();}catch(e){}
+  AC=analyser=waveAnalyser=masterGain=beatGain=voiceGain=null; _noiseBuf=null;
+  stopProg();
+  document.getElementById('playBtn').classList.remove('on');
+  document.getElementById('bt').textContent='▶ PLAY';
+  document.getElementById('st').textContent='STOPPED';
+  document.getElementById('st').className='';
+  document.getElementById('sl').textContent='[ — ]';
+  document.getElementById('vs').textContent='● ENGINE OFF';
+  document.getElementById('vs').className='';
+  document.getElementById('idle').classList.remove('gone');
+  document.getElementById('sb-duck').querySelector('span').textContent='OFF';
+  document.getElementById('duckFill').style.width='0%';
+  document.querySelectorAll('.ls').forEach(el=>{el.classList.remove('active');el.style.position='absolute';});
+  SQUARES.forEach(sq=>{sq.className='bsq'+(sq.className.includes('beat')?' beat':'');});
+}
+
+document.getElementById('playBtn').addEventListener('click',()=>{ if(isPlaying)stopAll(); else startAll(); });
+document.getElementById('mvol').addEventListener('input',e=>{
+  document.getElementById('mvolV').textContent=parseFloat(e.target.value).toFixed(2);
+  if(beatGain&&!document.getElementById('sb-duck').querySelector('span').textContent==='ON')
+    beatGain.gain.value=+e.target.value;
+});
+// live param readouts
+[['pr','prV'],['rr','rrV'],['vvol','vvolV'],['duckAmt','duckV']].forEach(([r,v])=>{
+  document.getElementById(r).addEventListener('input',e=>{document.getElementById(v).textContent=parseFloat(e.target.value).toFixed(2);});
+});
+</script>
+</body>
+</html>

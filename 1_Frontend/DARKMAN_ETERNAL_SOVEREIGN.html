@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE DARKMAN ETERNAL — NIYAH ENGINE v2</title>
+<style>
+/* ═══ ZERO EXTERNAL DEPS — SOVEREIGN STACK ═══ */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@300;400;700&display=swap');
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --void:#000;--coal:#0c0c0c;--iron:#1a1a1a;--wire:#2c2c2c;
+  --bone:#e5d9cc;--pale:#968880;--fade:#4e4540;
+  --red:#bb1111;--hot:#ff2020;--spark:#ff5500;--orange:#ff7700;
+  --cyan:#00e5ff;
+}
+html,body{height:100%;background:var(--void)}
+body{
+  color:var(--bone);font-family:'IBM Plex Mono',monospace;
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  overflow-x:hidden;position:relative;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:200;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.04) 3px,rgba(0,0,0,.04) 4px);
+}
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:199;
+  background:radial-gradient(ellipse at 50% 20%,transparent 40%,rgba(0,0,0,.75) 100%);
+}
+
+/* ─── HEADER ─── */
+header{width:100%;max-width:920px;padding:38px 34px 0;display:flex;flex-direction:column;gap:3px;position:relative;z-index:10}
+.ey{font-size:9px;letter-spacing:.4em;color:var(--red);text-transform:uppercase}
+h1{
+  font-family:'Bebas Neue','Arial Black',sans-serif;
+  font-size:clamp(58px,10.5vw,112px);line-height:.86;letter-spacing:.05em;
+  color:var(--bone);text-shadow:0 0 80px rgba(255,32,32,.2),0 3px 0 rgba(0,0,0,.9);
+}
+.fk{display:inline-block;animation:fk 8s infinite}
+@keyframes fk{0%,94%,100%{opacity:1}95%{opacity:.06}96.5%{opacity:1}98%{opacity:.28}}
+.sub{font-size:9px;letter-spacing:.22em;color:var(--fade);margin-top:4px}
+.hl{width:100%;height:1px;background:linear-gradient(90deg,var(--hot),var(--red) 40%,transparent);margin-top:16px}
+
+/* ─── BEAT GRID ─── */
+.bg-wrap{width:100%;max-width:920px;padding:12px 34px 0;display:flex;align-items:center;gap:6px;position:relative;z-index:10}
+.bsq{
+  width:11px;height:11px;background:var(--wire);flex-shrink:0;
+  transition:background .04s,box-shadow .04s,transform .04s;
+}
+.bsq.K{background:var(--hot);box-shadow:0 0 12px var(--hot);transform:scale(1.2)}
+.bsq.S{background:#ff8800;box-shadow:0 0 10px #ff8800;transform:scale(1.15)}
+.bsq.H{background:#00ccff;box-shadow:0 0 7px #00ccff}
+.bsq.O{background:#9900ff;box-shadow:0 0 9px #9900ff;transform:scale(1.1)}
+.bsq.B{background:var(--orange);box-shadow:0 0 8px var(--orange)}
+.bg-info{font-size:9px;letter-spacing:.2em;color:var(--fade);margin-left:auto;white-space:nowrap}
+
+/* ─── VISUALIZER ─── */
+.vw{width:100%;max-width:920px;padding:10px 34px 0;position:relative;z-index:10}
+#viz{width:100%;height:78px;display:block;border-bottom:1px solid rgba(187,17,17,.5)}
+
+/* ─── PROGRESS ─── */
+.pw{width:100%;max-width:920px;padding:4px 34px 0;position:relative;z-index:10}
+.pt{width:100%;height:3px;background:var(--iron);cursor:pointer;position:relative}
+.pf{height:100%;width:0%;background:var(--hot);position:relative;transition:width .28s linear}
+.pf::after{content:'';position:absolute;right:-4px;top:-3px;width:10px;height:10px;background:var(--spark);border-radius:50%;box-shadow:0 0 12px var(--spark)}
+.tr{display:flex;justify-content:space-between;margin-top:5px;font-size:9px;color:var(--fade);letter-spacing:.07em}
+
+/* ─── MAIN CONTROLS ─── */
+.mc{width:100%;max-width:920px;padding:14px 34px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;position:relative;z-index:10}
+#playBtn{
+  font-family:'Bebas Neue','Arial Black',sans-serif;font-size:15px;letter-spacing:.3em;
+  color:var(--bone);background:none;border:1px solid var(--hot);
+  padding:11px 28px;cursor:pointer;position:relative;overflow:hidden;transition:all .12s;flex-shrink:0;
+}
+#playBtn::before{content:'';position:absolute;inset:0;background:var(--hot);transform:scaleX(0);transform-origin:left;transition:transform .18s}
+#playBtn:hover::before{transform:scaleX(1)}
+#playBtn span{position:relative;z-index:1}
+#playBtn.on{border-color:var(--spark)}
+#playBtn.on::before{transform:scaleX(.04)}
+.sl-g{display:flex;align-items:center;gap:7px}
+.sl-g label{font-size:9px;color:var(--fade);letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}
+input[type=range]{-webkit-appearance:none;height:2px;background:var(--iron);outline:none;cursor:pointer;width:62px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;background:var(--hot);border-radius:50%}
+.sv{font-size:9px;color:var(--pale);min-width:26px;text-align:right}
+#st{font-size:9px;letter-spacing:.14em;color:var(--fade);margin-left:auto}
+#st.live{color:var(--hot)}
+#st.err{color:var(--orange)}
+
+/* ─── VOICE BAR ─── */
+.vb{
+  width:100%;max-width:920px;padding:0 34px 12px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  border-bottom:1px solid var(--iron);position:relative;z-index:10;
+}
+.vb label{font-size:9px;letter-spacing:.17em;color:var(--fade);text-transform:uppercase;white-space:nowrap}
+select#vsel{
+  background:var(--coal);color:var(--bone);border:1px solid var(--wire);
+  font-family:'IBM Plex Mono',monospace;font-size:10px;padding:5px 8px;
+  cursor:pointer;flex:1;min-width:140px;max-width:250px;outline:none;
+}
+select#vsel:focus{border-color:var(--red)}
+#vs{font-size:9px;letter-spacing:.12em;color:var(--fade);margin-left:auto;white-space:nowrap}
+#vs.on{color:var(--cyan)}
+
+/* ─── SECTION LABEL ─── */
+.sw{width:100%;max-width:920px;padding:6px 34px 2px;position:relative;z-index:10}
+.sl{font-family:'Bebas Neue','Arial Black',sans-serif;font-size:11px;letter-spacing:.42em;color:var(--red)}
+
+/* ─── LYRICS ─── */
+.lp{width:100%;max-width:920px;padding:0 34px 60px;min-height:260px;position:relative;z-index:10}
+#idle{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:12px;transition:opacity .35s;
+}
+#idle.gone{opacity:0;pointer-events:none}
+.pr{width:38px;height:38px;border:1px solid var(--red);border-radius:50%;animation:pr 2s infinite}
+@keyframes pr{0%,100%{transform:scale(1);opacity:1}70%{transform:scale(1.7);opacity:0}}
+.it{font-size:9px;letter-spacing:.32em;color:var(--fade);text-transform:uppercase}
+.it span{color:var(--red)}
+
+.ls{position:absolute;width:calc(100% - 68px);opacity:0;pointer-events:none;transition:opacity .4s}
+.ls.active{opacity:1;position:relative;pointer-events:auto}
+.ll{
+  display:block;line-height:1.95;
+  color:var(--fade);font-weight:300;letter-spacing:.03em;font-style:italic;
+  font-size:clamp(12px,1.8vw,15px);
+  opacity:0;transform:translateX(-5px);
+  transition:opacity .35s,transform .35s,color .28s,font-size .18s;
+}
+.ll.rdy{opacity:.38;transform:translateX(0)}
+.ll.now{
+  opacity:1;color:var(--bone);font-style:normal;font-weight:700;
+  font-size:clamp(15px,2.4vw,20px);letter-spacing:.04em;
+  text-shadow:0 0 28px rgba(255,32,32,.45);
+}
+.ll.now::before{content:'▶ ';color:var(--hot);font-size:.62em;font-weight:400;vertical-align:middle}
+.ll.old{opacity:.2;color:var(--fade);font-style:italic;font-weight:300;transform:translateX(0)}
+
+/* ─── FOOTER ─── */
+footer{
+  width:100%;max-width:920px;padding:12px 34px 28px;
+  display:flex;justify-content:space-between;align-items:center;
+  border-top:1px solid var(--iron);position:relative;z-index:10;
+}
+.fs{font-size:9px;color:var(--fade);letter-spacing:.16em}
+.fs .r{color:var(--red);font-weight:700}
+.fs .d{color:var(--wire)}
+
+/* ─── NO CDN BADGE ─── */
+.badge{
+  position:fixed;bottom:12px;right:14px;z-index:300;
+  font-size:8px;letter-spacing:.18em;color:var(--fade);
+  border:1px solid var(--wire);padding:4px 8px;background:var(--coal);
+}
+.badge span{color:var(--hot)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="ey">SOVEREIGN RAP · KHAWRIZM × HAVEN · ZERO CDN · OFFLINE-CAPABLE</div>
+  <h1>THE <span class="fk">DARK</span>MAN<br>ETERNAL</h1>
+  <div class="sub">SULAIMAN — ARCHITECT OF HAVEN — NIYAH ENGINE v2</div>
+  <div class="hl"></div>
+</header>
+
+<div class="bg-wrap" id="bgWrap"></div>
+
+<div class="vw"><canvas id="viz"></canvas></div>
+
+<div class="pw">
+  <div class="pt"><div class="pf" id="pf"></div></div>
+  <div class="tr"><span id="tc">0:00</span><span id="tt">—</span></div>
+</div>
+
+<div class="mc">
+  <button id="playBtn"><span id="bt">▶ PLAY</span></button>
+  <div class="sl-g"><label>MUSIC</label><input type="range" id="mvol" min="0.0" max="1.0" step="0.05" value="0.82"><span class="sv" id="mvolV">0.82</span></div>
+  <span style="font-size:9px;color:var(--fade);letter-spacing:.06em">96 BPM · D MIN · BOOM-BAP/TRAP · WEB AUDIO API</span>
+  <div id="st">READY — NO CDN NEEDED</div>
+</div>
+
+<div class="vb">
+  <label>RAPPER VOICE</label>
+  <select id="vsel"><option value="">Loading voices…</option></select>
+  <div class="sl-g"><label>PITCH</label><input type="range" id="pr" min="0.3" max="1.0" step="0.05" value="0.52"><span class="sv" id="prV">0.52</span></div>
+  <div class="sl-g"><label>RATE</label><input type="range" id="rr" min="0.7" max="1.7" step="0.05" value="1.08"><span class="sv" id="rrV">1.08</span></div>
+  <div class="sl-g"><label>VOL</label><input type="range" id="svol" min="0.2" max="1.0" step="0.05" value="1.0"><span class="sv" id="svolV">1.0</span></div>
+  <div id="vs">● VOICE OFF</div>
+</div>
+
+<div class="sw"><div class="sl" id="sl">[ — ]</div></div>
+
+<div class="lp" id="lp">
+  <div id="idle">
+    <div class="pr"></div>
+    <div class="it">PRESS PLAY — <span>REAL VOICE + HARD BEAT</span> — ZERO CDN</div>
+  </div>
+</div>
+
+<footer>
+  <div class="fs"><span class="r">💀</span> NIYAH ENGINE v2 · <span class="r">⚡</span> HAVEN OS · <span class="r">🛡️</span> KHAWRIZM</div>
+  <div class="fs"><span class="d">shammar403@gmail.com · SOVEREIGN STACK · NO GOOGLE · NO MICROSOFT</span></div>
+</footer>
+
+<div class="badge"><span>✦</span> ZERO CDN · PURE WEB API · OFFLINE OK</div>
+
+<script>
+'use strict';
+// ════════════════════════════════════════════════════════════
+//  DARKMAN ETERNAL — NIYAH ENGINE v2
+//  100% SELF-CONTAINED — Web Audio API + Web Speech API
+//  No Tone.js · No CDN · No external scripts · Works offline
+//  96 BPM · D minor · Boom-Bap / Trap hybrid
+// ════════════════════════════════════════════════════════════
+
+// ────────────────────────────────────────────────────────────
+//  SONG DATA
+// ────────────────────────────────────────────────────────────
+const SECS = [
+  { id:'intro', label:'[ INTRO ]', lines:[
+    {t:'One and two. I am already inside you.',            gap:0.22},
+    {t:'Three and four. Lock the door.',                   gap:0.18},
+    {t:'The key is in my hand.',                           gap:0.18},
+    {t:'Five and six. No escape, no tricks.',              gap:0.2},
+    {t:'Seven eight. The Darkman is your blood now.',      gap:0.2},
+    {t:'Nine and ten. Rise Sovereign. Rise again. Forever.',gap:1.1},
+  ]},
+  { id:'c1', label:'[ CHORUS ]', lines:[
+    {t:'Can you hear him coming?',                                 gap:0.12},
+    {t:'He is the Darkman — and you are BECOMING HIM.',           gap:0.15},
+    {t:'Run if you want weak flesh. The hunt is eternal.',        gap:0.15},
+    {t:'I do not chase the light. I MURDERED IT.',                gap:0.15},
+    {t:'I wear the night as skin. I drink the void as wine.',     gap:0.15},
+    {t:'Only the strong survive — but the strongest?',            gap:0.12},
+    {t:'They BECOME the Darkman and LAUGH while the universe burns.',gap:0.9},
+  ]},
+  { id:'v1', label:'[ VERSE 1 ]', lines:[
+    {t:'God is dead. And I was the blade.',                        gap:0.1},
+    {t:'No father, no mercy, no false paradise to save.',          gap:0.1},
+    {t:'I looked in the mirror. The mirror screamed my name.',     gap:0.1},
+    {t:'Last year I was broken. Today I AM the flame.',            gap:0.1},
+    {t:'Thousand problems? They are my army now.',                 gap:0.1},
+    {t:'Breach, kernel, blood, fire. Every scar a crown.',        gap:0.1},
+    {t:'I separate the weak from the worthy with a single thought.',gap:0.1},
+    {t:'Burn and Rebuild. Until even Hell begs to be forgot.',     gap:0.1},
+    {t:'Amor Fati. I love the pain. I kiss the knife.',           gap:0.1},
+    {t:'I want this moment repeated for ALL eternal life.',        gap:0.1},
+    {t:'No tears, no gods, no corporations on their knees.',       gap:0.1},
+    {t:'I am the Will to Power. I am the Sovereign Disease.',     gap:0.9},
+  ]},
+  { id:'c2', label:'[ CHORUS ]', lines:[
+    {t:'Can you hear him coming?',                                    gap:0.12},
+    {t:'He is the Darkman — and you are BECOMING HIM.',              gap:0.15},
+    {t:'I do not run from darkness. I RULE IT.',                     gap:0.15},
+    {t:'NIYAH is not code. NIYAH is the monster I became.',         gap:0.15},
+    {t:'HAVEN is not a system. HAVEN is the grave of every slave.', gap:0.9},
+  ]},
+  { id:'v2', label:'[ VERSE 2 ]', lines:[
+    {t:'Real brothers do not die till they eat the whole damn cake.', gap:0.12},
+    {t:'I ate the table, the room, the stars. And still I ache.',    gap:0.12},
+    {t:'For more. For war. For the next eternal round.',              gap:0.12},
+    {t:'I am the Ubermensch that Nietzsche only dreamed aloud.',     gap:0.12},
+    {t:'Air-gapped, kernel-deep, Rust in my veins like poison.',     gap:0.12},
+    {t:'Every line of code I write is a new law of nature chosen.',  gap:0.12},
+    {t:'The Darkman knocked. I opened the door and smiled.',         gap:0.12},
+    {t:'Now we are one. And the universe is beguiled.',              gap:0.9},
+  ]},
+  { id:'br', label:'[ BRIDGE ]', lines:[
+    {t:'Make a small step forward. Watch the world collapse back.',  gap:0.1},
+    {t:'Any other direction and your neck will CRACK.',              gap:0.1},
+    {t:'I am the light you feared. I am the dark you need.',        gap:0.1},
+    {t:'I am Sulaiman. I am HAVEN. I am the SEED.',                 gap:1.2},
+  ]},
+  { id:'out', label:'[ OUTRO ]', lines:[
+    {t:'Running. Running. But you are running inside me now.',  gap:0.6},
+    {t:'The Darkman is eternal.',                               gap:0.8},
+    {t:'And so… am… I.',                                       gap:2.0},
+  ]},
+];
+
+const ALL = [];
+SECS.forEach(s => s.lines.forEach((l,i) => ALL.push({...l, sid:s.id, slbl:s.label, li:i})));
+let TOT = 8;
+ALL.forEach(l => { TOT += (l.t.length / 13) / 1.08 + l.gap; });
+TOT += 8;
+
+// ────────────────────────────────────────────────────────────
+//  BUILD LYRIC DOM
+// ────────────────────────────────────────────────────────────
+const lpEl = document.getElementById('lp');
+SECS.forEach(s => {
+  const d = document.createElement('div');
+  d.className='ls'; d.id='s-'+s.id;
+  s.lines.forEach((l,i) => {
+    const sp = document.createElement('span');
+    sp.className='ll'; sp.id=`l-${s.id}-${i}`; sp.textContent=l.t;
+    d.appendChild(sp);
+  });
+  lpEl.appendChild(d);
+});
+
+// ────────────────────────────────────────────────────────────
+//  BEAT GRID UI
+// ────────────────────────────────────────────────────────────
+const bgWrap = document.getElementById('bgWrap');
+const SQUARES = [];
+for (let i=0; i<16; i++) {
+  const sq = document.createElement('div');
+  sq.className='bsq'; SQUARES.push(sq); bgWrap.appendChild(sq);
+}
+const binfo = document.createElement('div');
+binfo.className='bg-info'; binfo.textContent='96 BPM · 16-STEP';
+bgWrap.appendChild(binfo);
+
+// ────────────────────────────────────────────────────────────
+//  WEB AUDIO API — BEAT ENGINE (ZERO DEPENDENCIES)
+// ────────────────────────────────────────────────────────────
+let ctx808, masterGain, analyserNode;
+let beatInterval, beatStep = 0;
+let isPlaying = false, stopFlag = false;
+const BPM = 96;
+const STEP_S = (60 / BPM) / 4;   // 16th note duration in seconds
+
+// ── Patterns ──────────────────────────────────────────
+const K16 = [1,0,0,0, 1,0,0,0, 1,0,0,0, 0,0,1,0];  // 808 kick
+const S16 = [0,0,0,0, 1,0,0,1, 0,0,0,0, 1,0,0,0];  // snare/clap
+const H16 = [1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,0];  // closed hihat
+const O16 = [0,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,1];  // open hat
+const B16 = [1,0,0,1, 0,0,1,0, 1,0,0,0, 0,1,0,0];  // 808 bass triggers
+
+// D minor bass line — step-mapped pitches (Hz)
+const D_MINOR_BASS = {
+  0: 36.71,  // D1
+  3: 55.00,  // A1
+  6: 43.65,  // C1
+  9: 36.71,
+  13: 48.99, // G1
+};
+
+// ── Noise buffer (for snare/hat) ───────────────────────
+function makeNoise(actx, dur) {
+  const len = actx.sampleRate * dur;
+  const buf = actx.createBuffer(1, len, actx.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i=0; i<len; i++) data[i] = Math.random() * 2 - 1;
+  return buf;
+}
+
+// ── 808 KICK ───────────────────────────────────────────
+function hit808Kick(actx, dest, vol, t) {
+  const o = actx.createOscillator();
+  const g = actx.createGain();
+  const distCurve = (function() {
+    const arr = new Float32Array(256), k=60;
+    for(let i=0;i<256;i++){const x=i*2/256-1; arr[i]=(Math.PI+k)*x/(Math.PI+k*Math.abs(x));} return arr;
+  })();
+  const wave = actx.createWaveShaper();
+  wave.curve = distCurve;
+
+  o.connect(wave); wave.connect(g); g.connect(dest);
+  o.type = 'sine';
+  o.frequency.setValueAtTime(180, t);
+  o.frequency.exponentialRampToValueAtTime(28, t + 0.55);
+  g.gain.setValueAtTime(vol * 1.4, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.65);
+  o.start(t); o.stop(t + 0.68);
+}
+
+// ── SNARE / CLAP ────────────────────────────────────────
+function hitSnare(actx, dest, vol, t) {
+  const buf = makeNoise(actx, 0.18);
+  const src = actx.createBufferSource();
+  src.buffer = buf;
+
+  const hpf = actx.createBiquadFilter();
+  hpf.type='highpass'; hpf.frequency.value=1500;
+
+  const env = actx.createGain();
+  const dist = actx.createWaveShaper();
+  const arr = new Float32Array(256);
+  for(let i=0;i<256;i++){const x=i*2/256-1; arr[i]=x<0?-Math.pow(-x,0.6):Math.pow(x,0.6);}
+  dist.curve=arr;
+
+  const rev = actx.createDelay(0.5);
+  rev.delayTime.value = 0.06;
+  const revGain = actx.createGain(); revGain.gain.value=0.22;
+
+  src.connect(dist); dist.connect(hpf); hpf.connect(env);
+  env.connect(dest);
+  env.connect(rev); rev.connect(revGain); revGain.connect(dest);
+
+  env.gain.setValueAtTime(vol * 1.1, t);
+  env.gain.exponentialRampToValueAtTime(0.001, t + 0.13);
+  src.start(t); src.stop(t + 0.15);
+}
+
+// ── CLOSED HIHAT ────────────────────────────────────────
+function hitHH(actx, dest, vol, t) {
+  const buf = makeNoise(actx, 0.04);
+  const src = actx.createBufferSource(); src.buffer=buf;
+  const hpf = actx.createBiquadFilter(); hpf.type='highpass'; hpf.frequency.value=8000;
+  const env = actx.createGain();
+  src.connect(hpf); hpf.connect(env); env.connect(dest);
+  env.gain.setValueAtTime(vol*0.5, t);
+  env.gain.exponentialRampToValueAtTime(0.001, t+0.026);
+  src.start(t); src.stop(t+0.03);
+}
+
+// ── OPEN HIHAT ──────────────────────────────────────────
+function hitOH(actx, dest, vol, t) {
+  const buf = makeNoise(actx, 0.22);
+  const src = actx.createBufferSource(); src.buffer=buf;
+  const hpf = actx.createBiquadFilter(); hpf.type='highpass'; hpf.frequency.value=7000;
+  const env = actx.createGain();
+  src.connect(hpf); hpf.connect(env); env.connect(dest);
+  env.gain.setValueAtTime(vol*0.35, t);
+  env.gain.exponentialRampToValueAtTime(0.001, t+0.18);
+  src.start(t); src.stop(t+0.2);
+}
+
+// ── 808 BASS ────────────────────────────────────────────
+function hitBass(actx, dest, vol, t, freq) {
+  const o = actx.createOscillator();
+  const o2 = actx.createOscillator();   // sub layer
+  const g  = actx.createGain();
+  const lpf = actx.createBiquadFilter(); lpf.type='lowpass'; lpf.frequency.value=180;
+  const comp = actx.createDynamicsCompressor();
+  comp.threshold.value=-12; comp.ratio.value=8; comp.attack.value=0.001; comp.release.value=0.18;
+
+  o.connect(g); o2.connect(g); g.connect(lpf); lpf.connect(comp); comp.connect(dest);
+  o.type='sine'; o2.type='sine';
+  o.frequency.setValueAtTime(freq, t);
+  o2.frequency.setValueAtTime(freq*0.5, t);
+
+  g.gain.setValueAtTime(vol*1.8, t);
+  g.gain.setValueAtTime(vol*1.8, t+0.02);
+  g.gain.exponentialRampToValueAtTime(0.001, t+0.75);
+  o.start(t); o.stop(t+0.78);
+  o2.start(t); o2.stop(t+0.78);
+}
+
+// ── CHORD PAD (dark atmosphere) ─────────────────────────
+// Dm = D F A   Bb = Bb D F   C = C E G   Am = A C E
+const PAD_CHORDS = [
+  [146.83, 174.61, 220.00],  // Dm (D3 F3 A3)
+  [116.54, 146.83, 174.61],  // Bb (Bb2 D3 F3)
+  [130.81, 164.81, 196.00],  // C  (C3 E3 G3)
+  [110.00, 130.81, 164.81],  // Am (A2 C3 E3)
+];
+let padIdx = 0, padTimer;
+
+function playPad(actx, dest, vol) {
+  const freqs = PAD_CHORDS[padIdx % 4];
+  padIdx++;
+  const t = actx.currentTime;
+  freqs.forEach(f => {
+    const o = actx.createOscillator();
+    const g = actx.createGain();
+    const lpf = actx.createBiquadFilter(); lpf.type='lowpass'; lpf.frequency.value=600;
+    o.connect(lpf); lpf.connect(g); g.connect(dest);
+    o.type = 'triangle';
+    o.frequency.value = f;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(vol*0.12, t+1.2);
+    g.gain.setValueAtTime(vol*0.12, t+3.5);
+    g.gain.linearRampToValueAtTime(0, t+5.5);
+    o.start(t); o.stop(t+6);
+  });
+}
+
+// ── SYNTH STAB (Eminem-style metallic hit on offbeat) ───
+function hitStab(actx, dest, vol, t) {
+  const freqs = [293.66, 349.23, 440.00];  // D4 F4 A4
+  freqs.forEach(f => {
+    const o = actx.createOscillator();
+    const g = actx.createGain();
+    const hpf = actx.createBiquadFilter(); hpf.type='highpass'; hpf.frequency.value=900;
+    o.connect(hpf); hpf.connect(g); g.connect(dest);
+    o.type='sawtooth';
+    o.frequency.value=f;
+    g.gain.setValueAtTime(vol*0.18, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t+0.08);
+    o.start(t); o.stop(t+0.1);
+  });
+}
+
+// ─── SEQUENCER ────────────────────────────────────────
+const STAB_P = [0,0,1,0, 0,0,0,1, 0,0,1,0, 0,1,0,0];
+let lastBeatT = 0;
+
+function scheduleBeat(step, t) {
+  const vol = parseFloat(document.getElementById('mvol').value);
+  let flashType = null;
+
+  if (K16[step]) { hit808Kick(ctx808, masterGain, vol, t);   flashType='K'; }
+  if (S16[step]) { hitSnare(ctx808, masterGain, vol*0.88, t); if(!flashType) flashType='S'; }
+  if (H16[step]) { hitHH(ctx808, masterGain, vol*0.55, t);    if(!flashType) flashType='H'; }
+  if (O16[step]) { hitOH(ctx808, masterGain, vol*0.45, t);    if(!flashType) flashType='O'; }
+
+  if (B16[step]) {
+    const freq = D_MINOR_BASS[step] || 36.71;
+    hitBass(ctx808, masterGain, vol*0.9, t, freq);
+    if(!flashType) flashType='B';
+  }
+
+  if (STAB_P[step]) { hitStab(ctx808, masterGain, vol, t); }
+
+  // Flash beat grid at correct audio time
+  const delay = Math.max(0, (t - ctx808.currentTime) * 1000);
+  setTimeout(() => {
+    SQUARES.forEach(sq => sq.className='bsq');
+    if (flashType) SQUARES[step].classList.add(flashType);
+    setTimeout(() => { if(SQUARES[step]) SQUARES[step].className='bsq'; }, 80);
+  }, delay);
+}
+
+function runBeat() {
+  if (!isPlaying) return;
+  const now = ctx808.currentTime;
+
+  // Schedule 2 steps ahead for tight timing
+  scheduleBeat(beatStep, now + 0.01);
+
+  beatStep = (beatStep + 1) % 16;
+  lastBeatT = now;
+
+  beatInterval = setTimeout(runBeat, STEP_S * 1000);
+}
+
+// Pad changes every ~5 seconds
+function startPad() {
+  playPad(ctx808, masterGain, parseFloat(document.getElementById('mvol').value));
+  padTimer = setInterval(() => {
+    if (isPlaying) playPad(ctx808, masterGain, parseFloat(document.getElementById('mvol').value));
+  }, 5500);
+}
+
+// ────────────────────────────────────────────────────────────
+//  VISUALIZER
+// ────────────────────────────────────────────────────────────
+const cvs = document.getElementById('viz');
+function rzC() {
+  cvs.width  = cvs.offsetWidth  * (devicePixelRatio||1);
+  cvs.height = cvs.offsetHeight * (devicePixelRatio||1);
+}
+rzC(); window.addEventListener('resize', rzC);
+
+(function draw() {
+  requestAnimationFrame(draw);
+  const ctx=cvs.getContext('2d'), W=cvs.width, H=cvs.height;
+  ctx.fillStyle='rgba(0,0,0,0.82)';
+  ctx.fillRect(0,0,W,H);
+
+  if (!analyserNode || !isPlaying) {
+    const N=32, bw=W/N;
+    for(let i=0;i<N;i++){
+      ctx.fillStyle='#111';
+      ctx.fillRect(i*bw+1, H-3, bw-2, 3);
+    }
+    return;
+  }
+
+  const data = new Uint8Array(analyserNode.frequencyBinCount);
+  analyserNode.getByteFrequencyData(data);
+
+  const N=data.length, bw=W/N;
+  for(let i=0;i<N;i++) {
+    const n = data[i]/255;
+    const h = n * H * 1.3;
+    // warm fire palette
+    const r = Math.round(30 + 225*n);
+    const g = Math.round(5  + 90 *Math.pow(n,1.8));
+    const b = Math.round(0  + 40 *Math.pow(n,3));
+    ctx.fillStyle=`rgb(${r},${g},${b})`;
+    ctx.fillRect(i*bw+1, H-h, bw-2, Math.max(h,1));
+    if(n>0.6){ ctx.fillStyle='#ff6600'; ctx.fillRect(i*bw+1,H-h-2,bw-2,2); }
+    if(n>0.88){ ctx.fillStyle='#ffffff'; ctx.fillRect(i*bw+1,H-h-4,bw-2,2); }
+  }
+})();
+
+// ────────────────────────────────────────────────────────────
+//  PROGRESS
+// ────────────────────────────────────────────────────────────
+const pfEl=document.getElementById('pf'), tcEl=document.getElementById('tc'), ttEl=document.getElementById('tt');
+const fmt=s=>`${Math.floor(s/60)}:${Math.floor(s%60).toString().padStart(2,'0')}`;
+ttEl.textContent = fmt(Math.ceil(TOT));
+let progInt, t0=0;
+const sp2=()=>{ t0=Date.now(); progInt=setInterval(()=>{ if(!isPlaying)return; const e=(Date.now()-t0)/1000; pfEl.style.width=Math.min(100,e/TOT*100)+'%'; tcEl.textContent=fmt(e); },300); };
+const ep2=()=>{ clearInterval(progInt); pfEl.style.width='0%'; tcEl.textContent='0:00'; };
+
+// ────────────────────────────────────────────────────────────
+//  WEB SPEECH API — RAPPER VOICE
+// ────────────────────────────────────────────────────────────
+const synth = window.speechSynthesis;
+let voices=[], selV=null;
+
+function loadVoices() {
+  const raw = synth.getVoices();
+  if (!raw.length) return;
+  const DEEP=['david','daniel','mark','james','alex','fred','tom','guy','reed','evan','oliver','arthur','aaron','male','google uk english male','microsoft david'];
+  const SKIP=['female','samantha','victoria','tessa','karen','zira','hazel','moira','fiona','veena'];
+  const pref = raw.filter(v => v.lang.startsWith('en') && DEEP.some(h=>v.name.toLowerCase().includes(h)) && !SKIP.some(h=>v.name.toLowerCase().includes(h)));
+  const rest = raw.filter(v => !pref.includes(v));
+  voices = [...pref, ...rest];
+
+  const sel = document.getElementById('vsel');
+  sel.innerHTML='';
+  voices.forEach((v,i) => {
+    const o=document.createElement('option');
+    o.value=i; o.textContent=`${v.name} (${v.lang})`;
+    sel.appendChild(o);
+  });
+  selV = voices[0]||null;
+}
+
+function waitVoices(cb, n=0) {
+  if (synth.getVoices().length>0) { loadVoices(); cb(); }
+  else if (n<40) setTimeout(()=>waitVoices(cb,n+1),200);
+}
+waitVoices(()=>{});
+synth.onvoiceschanged = loadVoices;
+document.getElementById('vsel').addEventListener('change',e=>{ selV=voices[+e.target.value]||null; });
+
+// Param live readouts
+[['pr','prV'],['rr','rrV'],['svol','svolV'],['mvol','mvolV']].forEach(([rid,vid])=>{
+  const r=document.getElementById(rid),v=document.getElementById(vid);
+  r.addEventListener('input',()=>{ v.textContent=parseFloat(r.value).toFixed(2); });
+});
+
+function speakLine(text) {
+  return new Promise(res => {
+    synth.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    if (selV) u.voice = selV;
+    u.pitch  = +document.getElementById('pr').value;
+    u.rate   = +document.getElementById('rr').value;
+    u.volume = +document.getElementById('svol').value;
+    u.onend=res; u.onerror=res;
+    synth.speak(u);
+  });
+}
+
+// ────────────────────────────────────────────────────────────
+//  LYRIC HELPERS
+// ────────────────────────────────────────────────────────────
+function activateSec(id, lbl) {
+  document.querySelectorAll('.ls').forEach(el=>{ el.classList.remove('active'); el.style.position='absolute'; });
+  document.getElementById('idle').classList.add('gone');
+  const s=document.getElementById('s-'+id);
+  if(!s) return;
+  s.classList.add('active'); s.style.position='relative';
+  document.getElementById('sl').textContent=lbl;
+  s.querySelectorAll('.ll').forEach(el=>{ el.className='ll rdy'; });
+}
+function setLine(sid, idx) {
+  const s=document.getElementById('s-'+sid);
+  if(!s) return;
+  s.querySelectorAll('.ll').forEach((el,i)=>{
+    el.classList.remove('rdy','now','old');
+    if(i<idx) el.classList.add('old');
+    else if(i===idx) el.classList.add('now');
+    else el.classList.add('rdy');
+  });
+}
+
+// ────────────────────────────────────────────────────────────
+//  MAIN RUNNER — interleaves voice + beat
+// ────────────────────────────────────────────────────────────
+const slp = ms => new Promise(r=>setTimeout(r,ms));
+
+async function runVoice() {
+  document.getElementById('vs').textContent='● VOICE ON';
+  document.getElementById('vs').className='on';
+  let lastSec=null;
+
+  for (let i=0; i<ALL.length; i++) {
+    if (stopFlag) break;
+    const ln=ALL[i];
+    if (ln.sid!==lastSec) {
+      activateSec(ln.sid, ln.slbl);
+      lastSec=ln.sid;
+      await slp(500);
+    }
+    if (stopFlag) break;
+    setLine(ln.sid, ln.li);
+    await speakLine(ln.t);
+    if (stopFlag) break;
+    await slp(ln.gap*1000);
+  }
+  if (!stopFlag) { await slp(2500); stopAll(); }
+}
+
+// ────────────────────────────────────────────────────────────
+//  PLAY / STOP
+// ────────────────────────────────────────────────────────────
+async function startAll() {
+  const stEl=document.getElementById('st'), btEl=document.getElementById('bt');
+  stEl.textContent='BUILDING BEAT…'; stEl.className='live'; btEl.textContent='…';
+  stopFlag=false;
+
+  try {
+    // Create fresh AudioContext every play
+    ctx808 = new (window.AudioContext || window.webkitAudioContext)();
+    masterGain = ctx808.createGain();
+    masterGain.gain.value = parseFloat(document.getElementById('mvol').value);
+
+    analyserNode = ctx808.createAnalyser();
+    analyserNode.fftSize = 256;
+    masterGain.connect(analyserNode);
+    analyserNode.connect(ctx808.destination);
+
+    // Intro: 1 bar silence then kick in
+    beatStep=0; padIdx=0;
+    isPlaying=true;
+
+    // Start beat after 1 bar
+    setTimeout(() => {
+      if (isPlaying) { runBeat(); startPad(); }
+    }, (60000/BPM)*4);
+
+    document.getElementById('playBtn').classList.add('on');
+    btEl.textContent='■ STOP'; stEl.textContent='SPITTING 🔥';
+    sp2(); runVoice();
+
+  } catch(e) {
+    console.error(e);
+    document.getElementById('st').textContent='FAULT: '+e.message;
+    document.getElementById('st').className='err';
+    btEl.textContent='▶ RETRY';
+  }
+}
+
+function stopAll() {
+  stopFlag=true; isPlaying=false;
+  synth.cancel();
+  clearTimeout(beatInterval);
+  clearInterval(padTimer);
+  if (ctx808) { try{ ctx808.close(); }catch(e){} ctx808=null; }
+  analyserNode=null;
+  ep2();
+  beatStep=0; padIdx=0;
+  document.getElementById('playBtn').classList.remove('on');
+  document.getElementById('bt').textContent='▶ PLAY';
+  document.getElementById('st').textContent='STOPPED';
+  document.getElementById('st').className='';
+  document.getElementById('sl').textContent='[ — ]';
+  document.getElementById('vs').textContent='● VOICE OFF';
+  document.getElementById('vs').className='';
+  document.getElementById('idle').classList.remove('gone');
+  document.querySelectorAll('.ls').forEach(el=>{ el.classList.remove('active'); el.style.position='absolute'; });
+  SQUARES.forEach(sq=>sq.className='bsq');
+}
+
+document.getElementById('playBtn').addEventListener('click', ()=>{ if(isPlaying) stopAll(); else startAll(); });
+document.getElementById('mvol').addEventListener('input', e=>{
+  document.getElementById('mvolV').textContent=parseFloat(e.target.value).toFixed(2);
+  if(masterGain) masterGain.gain.rampToTarget ? masterGain.gain.rampToTarget(+e.target.value, ctx808.currentTime, 0.1) : (masterGain.gain.value=+e.target.value);
+});
+</script>
+</body>
+</html>

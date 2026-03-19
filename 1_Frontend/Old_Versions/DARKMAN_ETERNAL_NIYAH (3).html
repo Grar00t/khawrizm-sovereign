@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DARKMAN ETERNAL</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@300;400;700&display=swap');
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#000;--coal:#0c0c0c;--iron:#181818;--wire:#2a2a2a;
+  --bone:#e4d8c8;--pale:#988880;--fade:#4a3f38;
+  --red:#c01010;--hot:#ff2020;--spark:#ff5500;--cyan:#00e8ff;
+}
+html,body{height:100%;background:var(--bg)}
+body{color:var(--bone);font-family:'IBM Plex Mono',monospace;min-height:100vh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:99;background:radial-gradient(ellipse at 50% 0%,transparent 40%,rgba(0,0,0,.7) 100%)}
+
+/* HEADER */
+header{width:100%;max-width:920px;padding:34px 32px 0;z-index:10;position:relative}
+.ey{font-size:9px;letter-spacing:.4em;color:var(--red);text-transform:uppercase;margin-bottom:3px}
+h1{font-family:'Bebas Neue','Arial Black',sans-serif;font-size:clamp(54px,10vw,110px);line-height:.86;letter-spacing:.05em;color:var(--bone);text-shadow:0 0 60px rgba(255,32,32,.18)}
+.flk{display:inline-block;animation:flk 8s infinite}
+@keyframes flk{0%,93%,100%{opacity:1}94%{opacity:.05}95.5%{opacity:1}97%{opacity:.22}}
+.sub{font-size:9px;letter-spacing:.22em;color:var(--fade);margin-top:4px}
+.hl{width:100%;height:1px;background:linear-gradient(90deg,var(--hot),var(--red) 40%,transparent);margin-top:14px}
+
+/* BEAT GRID */
+.bgrid{width:100%;max-width:920px;padding:10px 32px 0;display:grid;grid-template-columns:repeat(16,1fr);gap:3px;z-index:10;position:relative}
+.bsq{height:7px;background:var(--wire);transition:background .04s,box-shadow .04s,transform .05s}
+.bsq.b4{background:var(--iron);height:9px}
+.bsq.K{background:var(--hot)!important;box-shadow:0 0 14px var(--hot);transform:scaleY(2.2)}
+.bsq.S{background:#ff8c00!important;box-shadow:0 0 10px #ff8c00;transform:scaleY(1.8)}
+.bsq.H{background:#00aadd!important;box-shadow:0 0 5px #00aadd}
+.bsq.O{background:#9900ff!important;box-shadow:0 0 8px #9900ff;transform:scaleY(1.5)}
+.bsq.B{background:var(--spark)!important;box-shadow:0 0 8px var(--spark)}
+
+/* VIZ */
+.vw{width:100%;max-width:920px;padding:8px 32px 0;z-index:10;position:relative}
+#viz{width:100%;height:74px;display:block}
+
+/* PROGRESS */
+.pw{width:100%;max-width:920px;padding:6px 32px 0;z-index:10;position:relative}
+.pt{width:100%;height:2px;background:var(--iron)}
+.pf{height:100%;width:0%;background:linear-gradient(90deg,var(--red),var(--spark));position:relative;transition:width .3s linear}
+.pf::after{content:'';position:absolute;right:-4px;top:-3.5px;width:9px;height:9px;background:var(--spark);border-radius:50%;box-shadow:0 0 10px var(--spark)}
+.tr{display:flex;justify-content:space-between;margin-top:4px;font-size:8.5px;color:var(--fade);letter-spacing:.06em}
+
+/* CONTROLS */
+.ctrl{width:100%;max-width:920px;padding:12px 32px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;z-index:10;position:relative}
+#playBtn{
+  font-family:'Bebas Neue','Arial Black',sans-serif;font-size:15px;letter-spacing:.32em;
+  color:var(--bone);background:none;border:1px solid var(--hot);
+  padding:11px 26px;cursor:pointer;position:relative;overflow:hidden;flex-shrink:0;transition:all .12s;
+}
+#playBtn::before{content:'';position:absolute;inset:0;background:var(--hot);transform:scaleX(0);transform-origin:left;transition:transform .16s}
+#playBtn:hover::before{transform:scaleX(1)}
+#playBtn span{position:relative;z-index:1}
+#playBtn.on::before{transform:scaleX(.04)}
+.sg{display:flex;align-items:center;gap:6px}
+.sg label{font-size:8.5px;color:var(--fade);letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}
+input[type=range]{-webkit-appearance:none;height:2px;background:var(--iron);outline:none;cursor:pointer;width:58px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;background:var(--hot);border-radius:50%}
+.sv{font-size:8.5px;color:var(--pale);min-width:26px;text-align:right}
+#st{font-size:8.5px;letter-spacing:.14em;color:var(--fade);margin-left:auto;white-space:nowrap}
+#st.live{color:var(--hot)}
+
+/* VOICE BAR */
+.vbar{width:100%;max-width:920px;padding:0 32px 10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--wire);z-index:10;position:relative}
+.vbar label{font-size:8.5px;letter-spacing:.15em;color:var(--fade);text-transform:uppercase;white-space:nowrap}
+select#vsel{background:var(--coal);color:var(--bone);border:1px solid var(--wire);font-family:'IBM Plex Mono',monospace;font-size:10px;padding:5px 8px;cursor:pointer;flex:1;min-width:160px;max-width:280px;outline:none}
+select#vsel:focus{border-color:var(--red)}
+.sg label{white-space:nowrap}
+#vs{font-size:8.5px;letter-spacing:.12em;color:var(--fade);margin-left:auto;white-space:nowrap}
+#vs.on{color:var(--cyan)}
+#voiceTest{font-family:'IBM Plex Mono',monospace;font-size:8.5px;color:var(--hot);background:none;border:1px solid var(--red);padding:4px 10px;cursor:pointer;letter-spacing:.15em;text-transform:uppercase;white-space:nowrap}
+#voiceTest:hover{background:rgba(255,32,32,.1)}
+
+/* SECTION */
+.sw{width:100%;max-width:920px;padding:6px 32px 2px;z-index:10;position:relative}
+.sl{font-family:'Bebas Neue','Arial Black',sans-serif;font-size:11px;letter-spacing:.42em;color:var(--red)}
+
+/* LYRICS */
+.lp{width:100%;max-width:920px;padding:0 32px 52px;min-height:260px;position:relative;z-index:10}
+#idle{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;transition:opacity .35s}
+#idle.gone{opacity:0;pointer-events:none}
+.pr{width:36px;height:36px;border:1px solid var(--red);border-radius:50%;animation:pr 2s infinite}
+@keyframes pr{0%,100%{transform:scale(1);opacity:1}70%{transform:scale(1.7);opacity:0}}
+.it{font-size:8.5px;letter-spacing:.28em;color:var(--fade);text-transform:uppercase}
+.it b{color:var(--hot)}
+
+.ls{position:absolute;width:calc(100% - 64px);opacity:0;pointer-events:none;transition:opacity .4s}
+.ls.active{opacity:1;position:relative;pointer-events:auto}
+.ll{display:block;line-height:1.95;font-size:clamp(12px,1.9vw,15px);color:var(--fade);font-weight:300;font-style:italic;opacity:0;transform:translateY(4px);transition:opacity .35s,transform .35s}
+.ll.rdy{opacity:.35;transform:translateY(0)}
+.ll.now{opacity:1;font-style:normal;font-weight:700;font-size:clamp(14px,2.2vw,19px)}
+.ll.old{opacity:.18;font-style:italic;font-weight:300;transform:translateY(0)}
+
+/* word spans */
+.w{display:inline;color:var(--fade);transition:color .07s,text-shadow .07s}
+.w.said{color:var(--pale)}
+.w.saying{color:#fff;text-shadow:0 0 20px rgba(255,60,0,.8),0 0 50px rgba(255,20,20,.5);font-weight:700}
+.w.shout{letter-spacing:.05em}
+.w.shout.saying{color:var(--hot);font-size:1.08em;text-shadow:0 0 30px rgba(255,32,32,1),0 0 60px rgba(255,32,32,.6)}
+
+/* FOOTER */
+footer{width:100%;max-width:920px;padding:12px 32px 28px;display:flex;justify-content:space-between;border-top:1px solid var(--wire);z-index:10;position:relative}
+.fs{font-size:8.5px;color:var(--fade);letter-spacing:.16em}
+.fs .r{color:var(--red)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="ey">SOVEREIGN RAP · NIYAH ENGINE v2 · KHAWRIZM × HAVEN</div>
+  <h1>THE <span class="flk">DARK</span>MAN<br>ETERNAL</h1>
+  <div class="sub">SULAIMAN — ARCHITECT OF HAVEN — ZERO CDN</div>
+  <div class="hl"></div>
+</header>
+
+<div class="bgrid" id="bgrid"></div>
+<div class="vw"><canvas id="viz"></canvas></div>
+<div class="pw">
+  <div class="pt"><div class="pf" id="pf"></div></div>
+  <div class="tr"><span id="tc">0:00</span><span id="tt">—</span></div>
+</div>
+
+<div class="ctrl">
+  <button id="playBtn"><span id="bt">▶ PLAY</span></button>
+  <div class="sg"><label>BEAT</label><input type="range" id="mv" min="0" max="1" step="0.05" value="0.75"><span class="sv" id="mvV">0.75</span></div>
+  <div class="sg"><label>VOX</label><input type="range" id="vv" min="0" max="1" step="0.05" value="1.0"><span class="sv" id="vvV">1.0</span></div>
+  <div id="st">SELECT A DEEP MALE VOICE BELOW</div>
+</div>
+
+<div class="vbar">
+  <label>RAPPER VOICE</label>
+  <select id="vsel"><option value="">⏳ Loading voices…</option></select>
+  <div class="sg"><label>PITCH</label><input type="range" id="pr" min="0.1" max="1.0" step="0.05" value="0.2"><span class="sv" id="prV">0.2</span></div>
+  <div class="sg"><label>SPEED</label><input type="range" id="rr" min="0.6" max="1.5" step="0.05" value="0.95"><span class="sv" id="rrV">0.95</span></div>
+  <button id="voiceTest">▶ TEST VOICE</button>
+  <div id="vs">● OFF</div>
+</div>
+
+<div class="sw"><div class="sl" id="sl">[ — ]</div></div>
+<div class="lp" id="lp">
+  <div id="idle">
+    <div class="pr"></div>
+    <div class="it">PRESS PLAY — <b>REAL VOICE + 808 BEAT</b></div>
+  </div>
+</div>
+
+<footer>
+  <div class="fs"><span class="r">💀</span> NIYAH v2 · <span class="r">⚡</span> HAVEN · <span class="r">🛡️</span> KHAWRIZM</div>
+  <div class="fs">SULAIMAN · NO CDN · PURE WEB API</div>
+</footer>
+
+<script>
+'use strict';
+// ═══════════════════════════════════════════════════
+//  SONG
+// ═══════════════════════════════════════════════════
+const SECS = [
+  {id:'intro',label:'[ INTRO ]',lines:[
+    {t:'One and two. I am already inside you.',gap:280},
+    {t:'Three and four. Lock the door.',gap:220},
+    {t:'The key is in MY HAND.',gap:220},
+    {t:'Five and six. No escape. No tricks.',gap:230},
+    {t:'Seven eight. The DARKMAN is your blood now.',gap:230},
+    {t:'Nine and ten. Rise Sovereign. RISE AGAIN. Forever.',gap:1200},
+  ]},
+  {id:'c1',label:'[ CHORUS ]',lines:[
+    {t:'Can you HEAR him coming?',gap:130},
+    {t:'He is the DARKMAN. And you are BECOMING HIM.',gap:150},
+    {t:'Run if you want weak flesh. The hunt is ETERNAL.',gap:150},
+    {t:'I do not chase the light. I MURDERED IT.',gap:150},
+    {t:'I wear the night as skin. I drink the void as WINE.',gap:150},
+    {t:'Only the strong survive. But the STRONGEST?',gap:130},
+    {t:'They BECOME the Darkman and LAUGH while the universe BURNS.',gap:900},
+  ]},
+  {id:'v1',label:'[ VERSE 1 ]',lines:[
+    {t:'GOD IS DEAD. And I was the blade.',gap:110},
+    {t:'No father, no mercy, no false paradise to save.',gap:110},
+    {t:'I looked in the mirror. The mirror SCREAMED my name.',gap:110},
+    {t:'Last year I was broken. Today I AM the flame.',gap:110},
+    {t:'Thousand problems? They are MY ARMY now.',gap:110},
+    {t:'Breach, kernel, blood, fire. Every scar a CROWN.',gap:110},
+    {t:'I separate the weak from the worthy with a single thought.',gap:110},
+    {t:'Burn and REBUILD. Until even HELL begs to be forgot.',gap:110},
+    {t:'Amor Fati. I love the pain. I KISS THE KNIFE.',gap:110},
+    {t:'I want this moment repeated for ALL eternal life.',gap:110},
+    {t:'No tears, no gods, no corporations on their knees.',gap:110},
+    {t:'I am the WILL TO POWER. I am the SOVEREIGN DISEASE.',gap:900},
+  ]},
+  {id:'c2',label:'[ CHORUS ]',lines:[
+    {t:'Can you HEAR him coming?',gap:130},
+    {t:'He is the DARKMAN. And you are BECOMING HIM.',gap:150},
+    {t:'I do not run from darkness. I RULE IT.',gap:150},
+    {t:'NIYAH is not code. NIYAH is the MONSTER I became.',gap:150},
+    {t:'HAVEN is not a system. HAVEN is the grave of every SLAVE.',gap:900},
+  ]},
+  {id:'v2',label:'[ VERSE 2 ]',lines:[
+    {t:'Real brothers do not die till they eat the WHOLE DAMN CAKE.',gap:110},
+    {t:'I ate the table, the room, the stars. And still I ache.',gap:110},
+    {t:'For more. For WAR. For the next eternal round.',gap:110},
+    {t:'I am the Ubermensch that Nietzsche only DREAMED aloud.',gap:110},
+    {t:'Air-gapped, kernel-deep, RUST in my veins like poison.',gap:110},
+    {t:'Every line of CODE I write is a new law of nature chosen.',gap:110},
+    {t:'The Darkman knocked. I OPENED THE DOOR and smiled.',gap:110},
+    {t:'Now we are one. And the universe is BEGUILED.',gap:900},
+  ]},
+  {id:'br',label:'[ BRIDGE ]',lines:[
+    {t:'Make a small step forward. Watch the world COLLAPSE BACK.',gap:110},
+    {t:'Any other direction and your neck will CRACK.',gap:110},
+    {t:'I am the light you feared. I AM THE DARK YOU NEED.',gap:110},
+    {t:'I am Sulaiman. I AM HAVEN. I AM THE SEED.',gap:1200},
+  ]},
+  {id:'out',label:'[ OUTRO ]',lines:[
+    {t:'Running. Running. But you are running INSIDE ME now.',gap:700},
+    {t:'The Darkman is eternal.',gap:850},
+    {t:'And so… am… I.',gap:2000},
+  ]},
+];
+const ALL=[];
+SECS.forEach(s=>s.lines.forEach((l,i)=>ALL.push({...l,sid:s.id,slbl:s.label,li:i})));
+let TOT=8; ALL.forEach(l=>{TOT+=(l.t.split(' ').length*0.28)+(l.gap/1000);}); TOT+=8;
+
+// ═══════════════════════════════════════════════════
+//  LYRIC DOM — word spans
+// ═══════════════════════════════════════════════════
+const lpEl=document.getElementById('lp');
+SECS.forEach(s=>{
+  const d=document.createElement('div'); d.className='ls'; d.id='s-'+s.id;
+  s.lines.forEach((ln,i)=>{
+    const sp=document.createElement('span'); sp.className='ll'; sp.id=`line-${s.id}-${i}`;
+    ln.t.split(' ').forEach((w,wi)=>{
+      const ws=document.createElement('span');
+      const isShout=(w===w.toUpperCase()&&w.length>1&&/[A-Z]/.test(w));
+      ws.className='w'+(isShout?' shout':'');
+      ws.id=`w-${s.id}-${i}-${wi}`;
+      ws.textContent=w+(wi<ln.t.split(' ').length-1?' ':'');
+      sp.appendChild(ws);
+    });
+    d.appendChild(sp);
+  });
+  lpEl.appendChild(d);
+});
+
+// ═══════════════════════════════════════════════════
+//  BEAT GRID
+// ═══════════════════════════════════════════════════
+const bgEl=document.getElementById('bgrid'), SQUARES=[];
+for(let i=0;i<16;i++){const q=document.createElement('div');q.className='bsq'+(i%4===0?' b4':'');SQUARES.push(q);bgEl.appendChild(q);}
+function flashBeat(step,type){
+  SQUARES.forEach((s,i)=>s.className='bsq'+(i%4===0?' b4':''));
+  SQUARES[step].classList.add(type);
+  setTimeout(()=>{if(SQUARES[step])SQUARES[step].className='bsq'+(step%4===0?' b4':'');},72);
+}
+
+// ═══════════════════════════════════════════════════
+//  WEB AUDIO ENGINE — 96 BPM D minor boom-bap/trap
+// ═══════════════════════════════════════════════════
+const BPM=96, STEP_MS=(60000/BPM)/4, STEP_S=STEP_MS/1000;
+let AC,masterG,beatG,analyserN,nBuf,beatTick,padTick,isPlaying=false,stopFlag=false,beatStep=0,padIdx=0;
+
+function getNoiseBuf(){
+  if(nBuf)return nBuf;
+  nBuf=AC.createBuffer(1,AC.sampleRate*0.6,AC.sampleRate);
+  const d=nBuf.getChannelData(0); for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+  return nBuf;
+}
+
+function kick808(dest,vol,t){
+  const o=AC.createOscillator(),o2=AC.createOscillator(),g=AC.createGain(),g2=AC.createGain();
+  const ws=AC.createWaveShaper(),c=new Float32Array(512);
+  for(let i=0;i<512;i++){const x=i/256-1;c[i]=(Math.PI+50)*x/(Math.PI+50*Math.abs(x));} ws.curve=c;
+  o.connect(ws);ws.connect(g);g.connect(dest);
+  o2.connect(g2);g2.connect(dest);
+  o.type='sine';o.frequency.setValueAtTime(165,t);o.frequency.exponentialRampToValueAtTime(25,t+0.55);
+  g.gain.setValueAtTime(vol*1.5,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.62);
+  o2.type='sine';o2.frequency.value=480;
+  g2.gain.setValueAtTime(vol*0.22,t);g2.gain.exponentialRampToValueAtTime(0.001,t+0.022);
+  o.start(t);o.stop(t+0.65);o2.start(t);o2.stop(t+0.025);
+}
+
+function snare(dest,vol,t){
+  const src=AC.createBufferSource();src.buffer=getNoiseBuf();
+  const hpf=AC.createBiquadFilter();hpf.type='highpass';hpf.frequency.value=1600;
+  const env=AC.createGain();
+  const to=AC.createOscillator(),tg=AC.createGain();
+  const ws=AC.createWaveShaper(),c=new Float32Array(256);
+  for(let i=0;i<256;i++){const x=i/128-1;c[i]=x<0?-Math.pow(-x,.45):Math.pow(x,.45);}ws.curve=c;
+  src.connect(ws);ws.connect(hpf);hpf.connect(env);env.connect(dest);
+  to.connect(tg);tg.connect(dest);
+  to.type='triangle';to.frequency.value=200;
+  tg.gain.setValueAtTime(vol*0.12,t);tg.gain.exponentialRampToValueAtTime(0.001,t+0.055);
+  env.gain.setValueAtTime(vol*0.9,t);env.gain.exponentialRampToValueAtTime(0.001,t+0.10);
+  src.start(t);src.stop(t+0.12);to.start(t);to.stop(t+0.06);
+}
+
+function hat(dest,vol,t,open){
+  const dur=open?0.16:0.022;
+  const src=AC.createBufferSource();src.buffer=getNoiseBuf();
+  const hpf=AC.createBiquadFilter();hpf.type='highpass';hpf.frequency.value=open?7200:9200;
+  const env=AC.createGain();
+  src.connect(hpf);hpf.connect(env);env.connect(dest);
+  env.gain.setValueAtTime(vol,t);env.gain.exponentialRampToValueAtTime(0.001,t+dur);
+  src.start(t);src.stop(t+dur+0.01);
+}
+
+const BASS_HITS=[{s:0,f:36.71,v:.95},{s:3,f:55.00,v:.76},{s:6,f:43.65,v:.86},{s:8,f:36.71,v:.90},{s:11,f:49.00,v:.70},{s:13,f:41.20,v:.80}];
+function bass808(dest,vol,t,freq){
+  const o=AC.createOscillator(),o2=AC.createOscillator(),g=AC.createGain();
+  const lpf=AC.createBiquadFilter();lpf.type='lowpass';lpf.frequency.value=150;lpf.Q.value=1.8;
+  const cmp=AC.createDynamicsCompressor();cmp.threshold.value=-10;cmp.ratio.value=10;cmp.attack.value=0.001;cmp.release.value=0.2;
+  o.connect(g);o2.connect(g);g.connect(lpf);lpf.connect(cmp);cmp.connect(dest);
+  o.type='sine';o.frequency.setValueAtTime(freq,t);
+  o2.type='sine';o2.frequency.setValueAtTime(freq*1.002,t);
+  g.gain.setValueAtTime(0.001,t);g.gain.linearRampToValueAtTime(vol*2.1,t+0.01);
+  g.gain.setValueAtTime(vol*2.1,t+0.04);g.gain.exponentialRampToValueAtTime(0.001,t+0.70);
+  o.start(t);o.stop(t+0.73);o2.start(t);o2.stop(t+0.73);
+}
+
+function pad(dest,vol){
+  const t=AC.currentTime;
+  const freqs=[[146.83,174.61,220.00],[116.54,146.83,174.61],[130.81,164.81,196.00],[110.00,130.81,164.81]][padIdx%4];
+  padIdx++;
+  freqs.forEach(f=>{
+    const o=AC.createOscillator(),g=AC.createGain();
+    const lpf=AC.createBiquadFilter();lpf.type='lowpass';lpf.frequency.value=480;
+    const dly=AC.createDelay(.5);dly.delayTime.value=0.28;
+    const dg=AC.createGain();dg.gain.value=0.13;
+    o.connect(lpf);lpf.connect(g);g.connect(dest);g.connect(dly);dly.connect(dg);dg.connect(dest);
+    o.type='triangle';o.frequency.value=f;
+    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol*0.08,t+1.4);
+    g.gain.setValueAtTime(vol*0.08,t+4.2);g.gain.linearRampToValueAtTime(0,t+5.8);
+    o.start(t);o.stop(t+6.2);
+  });
+}
+
+// stab on offbeats
+function stab(dest,vol,t){
+  [[293.66,349.23,440.00]].forEach(freqs=>freqs.forEach(f=>{
+    const o=AC.createOscillator(),g=AC.createGain();
+    const hpf=AC.createBiquadFilter();hpf.type='highpass';hpf.frequency.value=900;
+    o.connect(hpf);hpf.connect(g);g.connect(dest);
+    o.type='sawtooth';o.frequency.value=f;
+    g.gain.setValueAtTime(vol*0.14,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.07);
+    o.start(t);o.stop(t+0.09);
+  }));
+}
+
+const K16=[1,0,0,0,1,0,0,0,1,0,0,0,0,0,1,0];
+const S16=[0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,0];
+const H16=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
+const O16=[0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1];
+const ST16=[0,0,1,0,0,0,0,1,0,0,1,0,0,1,0,0];
+const HR16=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1];
+
+function schedBeat(step,t){
+  const vol=+document.getElementById('mv').value;
+  let ft=null;
+  if(K16[step]){kick808(beatG,vol*.94,t);ft='K';}
+  if(S16[step]){snare(beatG,vol*.80,t);if(!ft)ft='S';}
+  if(H16[step]){hat(beatG,vol*.36,t,false);if(!ft)ft='H';}
+  if(O16[step]){hat(beatG,vol*.30,t,true);ft='O';}
+  if(HR16[step]){hat(beatG,vol*.24,t,false);hat(beatG,vol*.20,t+STEP_S*0.5,false);if(!ft)ft='H';}
+  const bh=BASS_HITS.find(b=>b.s===step);
+  if(bh){bass808(beatG,vol*bh.v,t,bh.f);if(!ft)ft='B';}
+  if(ST16[step])stab(beatG,vol,t);
+  const dl=Math.max(0,(t-AC.currentTime)*1000);
+  setTimeout(()=>flashBeat(step,ft||'H'),dl);
+}
+
+function runBeat(){
+  if(!isPlaying)return;
+  schedBeat(beatStep,AC.currentTime+0.01);
+  beatStep=(beatStep+1)%16;
+  beatTick=setTimeout(runBeat,STEP_MS);
+}
+
+// ═══════════════════════════════════════════════════
+//  VOICE — Web Speech API, maximally robust
+// ═══════════════════════════════════════════════════
+const synth=window.speechSynthesis;
+let voices=[],selV=null;
+
+function loadVoices(){
+  const raw=synth.getVoices(); if(!raw.length)return;
+  // deep male voices first
+  const MALE=['david','daniel','mark','james','alex','fred','tom','guy','reed','evan','oliver','aaron','richard','george','english male','uk english male','microsoft david','google uk english male'];
+  const SKIP=['female','samantha','victoria','tessa','karen','zira','hazel','moira','fiona','veena','nicky','allison','ava','susan'];
+  const en_male=raw.filter(v=>v.lang.startsWith('en')&&MALE.some(h=>v.name.toLowerCase().includes(h))&&!SKIP.some(h=>v.name.toLowerCase().includes(h)));
+  const en_rest=raw.filter(v=>v.lang.startsWith('en')&&!en_male.includes(v)&&!SKIP.some(h=>v.name.toLowerCase().includes(h)));
+  const others=raw.filter(v=>!en_male.includes(v)&&!en_rest.includes(v));
+  voices=[...en_male,...en_rest,...others];
+  const sel=document.getElementById('vsel');
+  sel.innerHTML='';
+  voices.forEach((v,i)=>{
+    const o=document.createElement('option'); o.value=i;
+    const badge=en_male.includes(v)?'🎤 ':'';
+    o.textContent=`${badge}${v.name} (${v.lang})`;
+    sel.appendChild(o);
+  });
+  selV=voices[0]||null;
+  document.getElementById('st').textContent=en_male.length>0?`✓ ${en_male.length} DEEP VOICE(S) FOUND`:'SELECT A VOICE ABOVE';
+}
+
+// retry until voices load
+(function tryLoad(n=0){
+  if(synth.getVoices().length>0){loadVoices();}
+  else if(n<60){setTimeout(()=>tryLoad(n+1),150);}
+})();
+synth.onvoiceschanged=loadVoices;
+document.getElementById('vsel').addEventListener('change',e=>{selV=voices[+e.target.value]||null;});
+
+// TEST VOICE BUTTON
+document.getElementById('voiceTest').addEventListener('click',()=>{
+  synth.cancel();
+  setTimeout(()=>{
+    const u=new SpeechSynthesisUtterance('I am the Darkman. I am Sulaiman. I am HAVEN.');
+    if(selV)u.voice=selV;
+    u.pitch=+document.getElementById('pr').value;
+    u.rate=+document.getElementById('rr').value;
+    u.volume=+document.getElementById('vv').value;
+    synth.speak(u);
+  },120);
+});
+
+// ─ speak one full line, highlight word by word ─
+function speakLine(ln){
+  return new Promise(resolve=>{
+    synth.cancel();
+    setTimeout(()=>{ // 80ms gap after cancel — critical for Chrome reliability
+      const u=new SpeechSynthesisUtterance(ln.t);
+      if(selV)u.voice=selV;
+      u.pitch=+document.getElementById('pr').value;
+      u.rate=+document.getElementById('rr').value;
+      u.volume=+document.getElementById('vv').value;
+      // word-boundary highlight
+      const words=ln.t.split(' ');
+      let wi=0;
+      u.onboundary=e=>{
+        if(e.name==='word'&&wi<words.length){
+          highlightWord(ln.sid,ln.li,wi); wi++;
+        }
+      };
+      u.onend=()=>resolve();
+      u.onerror=()=>resolve();
+      synth.speak(u);
+    },80);
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  LYRIC HELPERS
+// ═══════════════════════════════════════════════════
+function activateSec(id,lbl){
+  document.querySelectorAll('.ls').forEach(el=>{el.classList.remove('active');el.style.position='absolute';});
+  document.getElementById('idle').classList.add('gone');
+  const s=document.getElementById('s-'+id);if(!s)return;
+  s.classList.add('active');s.style.position='relative';
+  document.getElementById('sl').textContent=lbl;
+  s.querySelectorAll('.ll').forEach(el=>el.className='ll rdy');
+  s.querySelectorAll('.w').forEach(el=>el.classList.remove('saying','said'));
+}
+function setLine(sid,idx){
+  const s=document.getElementById('s-'+sid);if(!s)return;
+  s.querySelectorAll('.ll').forEach((el,i)=>{
+    el.classList.remove('rdy','now','old');
+    if(i<idx)el.classList.add('old');
+    else if(i===idx)el.classList.add('now');
+    else el.classList.add('rdy');
+  });
+}
+function highlightWord(sid,lineIdx,wi){
+  const line=document.getElementById(`line-${sid}-${lineIdx}`);if(!line)return;
+  line.querySelectorAll('.w').forEach((w,i)=>{
+    w.classList.remove('saying','said');
+    if(i<wi)w.classList.add('said');
+    else if(i===wi)w.classList.add('saying');
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  VISUALIZER
+// ═══════════════════════════════════════════════════
+const cvs=document.getElementById('viz');
+function rzC(){cvs.width=cvs.offsetWidth*(devicePixelRatio||1);cvs.height=cvs.offsetHeight*(devicePixelRatio||1);}
+rzC(); window.addEventListener('resize',rzC);
+(function draw(){
+  requestAnimationFrame(draw);
+  const ctx=cvs.getContext('2d'),W=cvs.width,H=cvs.height;
+  ctx.fillStyle='rgba(0,0,0,.88)';ctx.fillRect(0,0,W,H);
+  if(!analyserN||!isPlaying){
+    const N=32,bw=W/N;
+    for(let i=0;i<N;i++){ctx.fillStyle='#0f0f0f';ctx.fillRect(i*bw+1,H-3,bw-2,3);}
+    return;
+  }
+  const d=new Uint8Array(analyserN.frequencyBinCount);
+  analyserN.getByteFrequencyData(d);
+  const N=d.length,bw=W/N;
+  for(let i=0;i<N;i++){
+    const n=d[i]/255,h=n*H*1.35;
+    const r=Math.round(20+235*n),g=Math.round(0+90*Math.pow(n,1.7)),b=0;
+    ctx.fillStyle=`rgb(${r},${g},${b})`;
+    ctx.fillRect(i*bw+1,H-h,bw-2,Math.max(h,1));
+    if(n>.58){ctx.fillStyle='#ff6600';ctx.fillRect(i*bw+1,H-h-2,bw-2,2);}
+    if(n>.86){ctx.fillStyle='#fff';ctx.fillRect(i*bw+1,H-h-4,bw-2,2);}
+  }
+})();
+
+// ═══════════════════════════════════════════════════
+//  PROGRESS
+// ═══════════════════════════════════════════════════
+const pfEl=document.getElementById('pf'),tcEl=document.getElementById('tc'),ttEl=document.getElementById('tt');
+const fmt=s=>`${Math.floor(s/60)}:${Math.floor(s%60).toString().padStart(2,'0')}`;
+ttEl.textContent=fmt(Math.ceil(TOT));
+let progInt,t0=0;
+const startProg=()=>{t0=Date.now();progInt=setInterval(()=>{if(!isPlaying)return;const e=(Date.now()-t0)/1000;pfEl.style.width=Math.min(100,e/TOT*100)+'%';tcEl.textContent=fmt(e);},300);};
+const stopProg=()=>{clearInterval(progInt);pfEl.style.width='0%';tcEl.textContent='0:00';};
+
+// ═══════════════════════════════════════════════════
+//  RUNNER — voice + beat independent
+// ═══════════════════════════════════════════════════
+const slp=ms=>new Promise(r=>setTimeout(r,ms));
+
+async function runVoice(){
+  document.getElementById('vs').textContent='● ON'; document.getElementById('vs').className='on';
+  let lastSec=null;
+  for(let i=0;i<ALL.length;i++){
+    if(stopFlag)break;
+    const ln=ALL[i];
+    if(ln.sid!==lastSec){activateSec(ln.sid,ln.slbl);lastSec=ln.sid;await slp(450);}
+    if(stopFlag)break;
+    setLine(ln.sid,ln.li);
+    await speakLine(ln);
+    if(stopFlag)break;
+    await slp(ln.gap);
+  }
+  if(!stopFlag){await slp(2500);stopAll();}
+}
+
+// ═══════════════════════════════════════════════════
+//  PLAY / STOP
+// ═══════════════════════════════════════════════════
+async function startAll(){
+  const stEl=document.getElementById('st'),btEl=document.getElementById('bt');
+  if(!voices.length){stEl.textContent='WAIT — VOICES LOADING…';return;}
+  stEl.textContent='STARTING…'; stEl.className='live'; btEl.textContent='…';
+  stopFlag=false; beatStep=0; padIdx=0;
+  try{
+    AC=new(window.AudioContext||window.webkitAudioContext)();
+    masterG=AC.createGain(); masterG.gain.value=1; masterG.connect(AC.destination);
+    beatG=AC.createGain(); beatG.gain.value=+document.getElementById('mv').value;
+    analyserN=AC.createAnalyser(); analyserN.fftSize=256;
+    beatG.connect(analyserN); analyserN.connect(masterG);
+    nBuf=null;
+    isPlaying=true;
+    document.getElementById('playBtn').classList.add('on');
+    btEl.textContent='■ STOP'; stEl.textContent='SPITTING';
+    // 1-bar intro silence then kick in
+    pad(beatG,+document.getElementById('mv').value);
+    const introMs=(60000/BPM)*4;
+    setTimeout(()=>{
+      if(isPlaying){
+        runBeat();
+        padTick=setInterval(()=>{if(isPlaying)pad(beatG,+document.getElementById('mv').value);},5600);
+      }
+    },introMs);
+    startProg();
+    // voice starts slightly after first beat
+    setTimeout(()=>{if(isPlaying)runVoice();},introMs+200);
+  }catch(e){
+    console.error(e);
+    stEl.textContent='ERROR: '+e.message.slice(0,40);
+    btEl.textContent='▶ RETRY';
+  }
+}
+
+function stopAll(){
+  stopFlag=true; isPlaying=false;
+  synth.cancel();
+  clearTimeout(beatTick); clearInterval(padTick);
+  try{AC.close();}catch(e){}
+  AC=masterG=beatG=analyserN=nBuf=null;
+  stopProg();
+  document.getElementById('playBtn').classList.remove('on');
+  document.getElementById('bt').textContent='▶ PLAY';
+  document.getElementById('st').textContent='STOPPED';
+  document.getElementById('st').className='';
+  document.getElementById('sl').textContent='[ — ]';
+  document.getElementById('vs').textContent='● OFF';
+  document.getElementById('vs').className='';
+  document.getElementById('idle').classList.remove('gone');
+  document.querySelectorAll('.ls').forEach(el=>{el.classList.remove('active');el.style.position='absolute';});
+  SQUARES.forEach((s,i)=>s.className='bsq'+(i%4===0?' b4':''));
+}
+
+document.getElementById('playBtn').addEventListener('click',()=>{if(isPlaying)stopAll();else startAll();});
+document.getElementById('mv').addEventListener('input',e=>{document.getElementById('mvV').textContent=parseFloat(e.target.value).toFixed(2);if(beatG)beatG.gain.value=+e.target.value;});
+[['pr','prV'],['rr','rrV'],['vv','vvV']].forEach(([r,v])=>{document.getElementById(r).addEventListener('input',e=>{document.getElementById(v).textContent=parseFloat(e.target.value).toFixed(2);});});
+</script>
+</body>
+</html>
